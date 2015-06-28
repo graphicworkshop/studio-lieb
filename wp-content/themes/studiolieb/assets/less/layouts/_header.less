@@ -1,0 +1,81 @@
+.banner {
+  margin-top: 30px;
+  border: none;
+  .navbar-brand {
+    background: url(../img/main-logo.png) no-repeat center center;
+    width: 54px;
+    height: 76px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -27px !important;
+    position: absolute;
+    &:focus {
+      outline: none;
+    }
+    .navbar-toggle {
+      padding: 4px 6px;
+      font-size: 16px;
+      color: @light;
+      &:focus,
+      &:active {
+        outline: none;
+      }
+    }
+  }
+
+  a {
+    color: @light;
+  }
+  .nav {
+    li {
+        text-transform: uppercase;
+        padding-left:40px;
+        padding-top:15px;
+        .letter-spacing(0.2);
+        &:nth-child(3) {
+            padding-left:80px;
+        }
+        &.active, &:hover {
+            outline: none;
+            a {
+              outline: none;
+              color: @brand-primary;
+              outline: none;
+              background-color: fade(@light, 30%);
+            }
+        }
+        a {
+            font-family: "Lato";
+            text-transform: uppercase;
+            padding: 3px 10px;
+            margin: 24px 0;
+            display: block;
+            transition: all 0.5s ease-in-out;
+            color: @brand-gray;
+        }
+    }
+  }
+}
+
+@media (min-width: 767px) {
+
+  .navbar {
+
+  
+    letter-spacing: 1px;
+    background: @light;
+    transition: background .3s ease-in-out, padding .5s ease-in-out;
+  }
+
+  .top-nav-collapse {
+    padding: 0;
+    background-color: @light;
+  }
+
+  .navbar-custom.top-nav-collapse {
+    //border-bottom: 1px solid fade(@light, 30%);
+    border-bottom: 1px solid @brand-gray-lighter;
+  }
+
+}

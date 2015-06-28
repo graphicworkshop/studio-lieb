@@ -1,0 +1,36 @@
+.hentry {
+  //margin: 2rem 0;
+
+  time {
+    font-weight: 400;
+    .font-size(1.2);
+    color: @brand-gray-light;
+    text-transform: uppercase;
+    &:before {
+      font-family: 'c2eicons';
+      content: "\e60e";
+      margin-right: 0.5rem;
+    }
+  }
+
+  header {
+    min-height: 105px;
+    background: url('../img/title-underline.svg') no-repeat bottom left;
+    background-size: 104px 1px;
+    padding-top: 10px;
+    margin-bottom: 15px;
+  }
+
+  .entry-content {
+    .font-size(1.3);
+  }
+
+  figure {
+    margin-bottom: 2rem;
+    img {
+      border: 1px solid @brand-gray-light;
+      box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.2);
+    }
+  }
+
+}

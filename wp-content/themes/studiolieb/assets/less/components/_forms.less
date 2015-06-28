@@ -1,0 +1,46 @@
+@input-color:                    @text-color;
+@input-border:                   #ccc;
+@input-border-radius:            1px;
+@input-border-focus:             @brand-primary;
+
+
+#login-form {
+  display: table;
+  background: darken(@brand-gray-lighter, 1%);
+  padding: 5px;
+  margin: 0 auto;
+  .form-group {
+    border: 5px solid darken(@brand-gray-lighter, 1%);
+  }
+  input[type=text],  input[type=password] {
+    border: 1px solid @light;
+    box-shadow: none;
+    border-left: 0;
+    .transition(~"border .25s linear, color .25s linear, background-color .25s linear");
+    &:focus {
+      border-color: @brand-primary;
+    }
+  }
+  button[type=submit] {
+    text-transform: uppercase;
+    font-weight: 600;
+    span {
+      .font-size(1.2);
+      margin-left: 10px;
+    }
+  }
+  .input-group-addon {
+    border: 1px solid @light;
+    border-right: 0;
+    background: @light;
+    padding-right: 0;
+    .transition(~"border .25s linear, color .25s linear, background-color .25s linear");
+  }
+
+  .form-group.focus,
+  .input-group.focus {
+    .input-group-addon {
+      border-color: @brand-primary;
+    }
+  }
+}
