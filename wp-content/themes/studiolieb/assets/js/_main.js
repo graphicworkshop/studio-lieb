@@ -23,137 +23,16 @@
         common  : {
             init: function ()
             {
-                var body = $("body"),
-                    _window = $(window),
-                    main_nav = $("#menu-primary-navigation, #carousel-link"),
-                    nav_bar = $(".navbar"),
-                    navbar_fixed_top = $(".navbar-fixed-top");
-                /*	==================================================
-                 # One Page Navigation
-                 ================================================== */
-                // adds scrollTo functionality
-                main_nav.onePageNav({
-                    changeHash     : true,
-                    easing         : "easeInOutExpo",
-                    scrollSpeed    : 800,
-                    scrollOffset   : 60,
-                    scrollThreshold: 0.5
+                
+                $('.section-featured-text').css({
+                    'height': $('.section-featured-img').height()
                 });
-                _window.scroll(function ()
-                {
-                    if (nav_bar.offset().top < 780)
-                    {
-                        navbar_fixed_top.hide();
-                    }
-                    else if (nav_bar.offset().top > 780)
-                    {
-                        navbar_fixed_top.show();
-                        if (nav_bar.offset().top > 850)
-                        {
-                            navbar_fixed_top.addClass("top-nav-collapse");
-                        }
-                        else
-                        {
-                            navbar_fixed_top.removeClass("top-nav-collapse");
-                        }
-                    }
-                });
-                // Closes the Responsive Menu on Menu Item Click
-                $('.navbar-collapse ul li a').click(function ()
-                {
-                    $('.navbar-toggle:visible').click();
-                });
-                /*	==================================================
-                 # Focus state for append/prepend inputs
-                 ================================================== */
-                $('.input-group').on('focus', '.form-control',function ()
-                {
-                    $(this).closest('.input-group, .form-group').addClass('focus');
-                }).on('blur', '.form-control', function ()
-                    {
-                        $(this).closest('.input-group, .form-group').removeClass('focus');
-                    });
-                /*	==================================================
-                 # Round Shape
-                 # Set image as background
-                 ================================================== */
-                $('.round-shape').each(function ()
-                {
-                    var background_url = $(this).children('img').attr('src');
-                    $(this).css('background-image', 'url(' + background_url + ')');
-                });
-                /*	==================================================
-                 # DiamondSlider
-                 # Inspired by @grafixes
-                 ================================================== */
-                $("#diamondslider-team").diamondslider({
-                    rows       : 2,
-                    gutterWidth: 12,
-                    sliding    : true,
-                    filter     : false
-                });
-                // Hovers diamondslider item
-                $(".diamondslider .slides > li").hover(
-                    function ()
-                    {
-                        var itemhover = $(this).find(".item-hover");
-                        if (!itemhover.hasClass("show"))
-                        {
-                            itemhover.stop().show();
-                            itemhover.find(".hover-title").stop().animate({ "margin-top": "37.3134%" }, 300, "easeInOutCirc");
-                        }
-                    },
-                    function ()
-                    {
-                        var itemhover = $(this).find(".item-hover");
-                        if (!itemhover.hasClass("show"))
-                        {
-                            itemhover.find(".hover-title").stop().animate({ "margin-top": "-30%" }, 300, "easeInOutCirc");
-                            itemhover.stop().hide();
-                        }
-                    }
-                );
-                /*	==================================================
-                 # Easy pie chart
-                 # http://github.com/rendro/easy-pie-chart/
-                 /* ================================================== */
-                var showChart = function ()
-                {
-                    $(".chart").easyPieChart({
-                        easing    : "easeInOut",
-                        barColor  : "#ffffff",
-                        trackColor: "#d82c2e",
-                        scaleColor: false,
-                        lineWidth : 4,
-                        size      : 152
-                    });
-                };
-                /*	==================================================
-                 # Thumnail Grid with expanding preview
-                 /* ================================================== */
-                $(function ()
-                {
-                    Grid.init();
-                });
-                /*	==================================================
-                 # Owlcarousel
-                 /* ================================================== */
-                $("#sellers").owlCarousel({
-                    items            : 4, //10 items above 1000px browser width
-                    itemsDesktop     : [1000, 4], //5 items between 1000px and 901px
-                    itemsDesktopSmall: [900, 3], // betweem 900px and 601px
-                    itemsTablet      : [600, 2], //2 items between 600 and 0
-                    itemsMobile      : false, // itemsMobile disabled - inherit from itemsTablet option
-                    navigation       : true,
-                    navigationText   : [
-                        "<i class='ci-right-big-arrow'></i>",
-                        "<i class='ci-left-big-arrow'></i>"
-                    ]
-                });
+                
+              
                 /*	==================================================
                  # Custom Form
                  /* ================================================== */
-                $('select').selectpicker();
+                
                 /*	==================================================
                  # Initialize all the reloadable JavaScript
                  ================================================== */

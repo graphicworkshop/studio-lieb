@@ -10,9 +10,12 @@ function roots_setup() {
   // Register wp_nav_menu() menus
   // http://codex.wordpress.org/Function_Reference/register_nav_menus
   register_nav_menus(array(
-    'primary_navigation' => __('Primary Navigation', 'roots')
+    'primary_navigation_left' => __('Menu gauche', 'roots')
   ));
 
+  register_nav_menus(array(
+    'primary_navigation_right' => __('Menu droite', 'roots')
+  ));
   // Add post thumbnails
   // http://codex.wordpress.org/Post_Thumbnails
   // http://codex.wordpress.org/Function_Reference/set_post_thumbnail_size

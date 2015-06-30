@@ -1,0 +1,120 @@
+
+/* --------- INTRO -------- */
+
+.intro { 
+	padding: 100px 0;
+	background-color: @brand-gray-lighter;
+	text-align: center;
+	.intro-text {
+      	 .font-size(1.8);
+      	color: @brand-gray-light;
+      	line-height: 1.8em;
+      	margin-top: 25px;
+    }
+	
+}
+
+
+#featured-projet {
+	
+	
+	.section-featured-text {
+		position: relative;
+
+		h2 {
+			margin-top: 70px;
+		}
+		p {
+			.font-size(1.6);
+			padding: 0px 60px;
+			text-align: justify;
+		}
+		.small-featured-img {
+			height: 200px;
+			position: absolute;
+			bottom: 0px;
+
+			&:before {
+				content: " ";
+				display: table;
+				width: 0px;
+				height: 0px;
+				border-left: 12px solid transparent;
+				border-right: 12px solid transparent;
+				border-top: 12px solid @light;
+				display: block;
+				margin-left: -6px;
+				left: 50%;
+				position: absolute;
+			}
+		}
+
+		
+	
+	}
+
+}
+
+@media (min-width: @screen-lg-min) {
+/*.row {
+		
+		display: table;
+
+
+		& > [class*='col-'] {
+			float: none;
+			display: table-cell;
+			vertical-align: top;
+		}
+
+	}
+
+	.section-featured-img {
+		overflow:hidden;
+	}
+
+*/
+}
+
+
+
+/*
+.intro {
+  display: table;
+  width: 100%;
+  height: auto;
+  padding: 100px 0;
+  text-align: center;
+  color: @light;
+  background: url(../img/c2e-visuel.jpg) no-repeat bottom center scroll;
+  background-color: @dark;
+  background-size: cover;
+  .intro-body {
+    display: table-cell;
+    vertical-align: middle;
+    .brand-heading {
+      font-size: 40px;
+    }
+
+    .intro-text {
+      font-size: 18px;
+    }
+  }
+}
+
+@media (min-width: 767px) {
+  .intro {
+    height: 780px;
+    padding: 0;
+    .intro-body {
+      .brand-heading {
+        font-size: 100px;
+      }
+
+      .intro-text {
+        font-size: 25px;
+      }
+    }
+  }
+}
+*/
