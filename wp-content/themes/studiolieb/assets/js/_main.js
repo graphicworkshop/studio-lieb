@@ -41,7 +41,7 @@
                 /*  ==================================================
                  # Initialize all the reloadable JavaScript
                  ================================================== */
-                /*if (!Modernizr.touch)
+                if (!Modernizr.touch)
                 {
                     
 
@@ -81,7 +81,7 @@
                     {
                         $(this).removeClass("animated no-opacity");
                     });
-                }*/
+                }
             }
         },
         // Home page
