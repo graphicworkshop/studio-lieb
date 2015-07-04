@@ -1,7 +1,7 @@
 <section class="container-fluid" id="featured-projet">
 	<div class="row no-gutter">
 		<div class="col-md-7 col-lg-8 section-featured-img">
-			<img src="<?php bloginfo('template_url'); ?>/assets/img/mariage_01.jpg" class="img-responsive">
+<!-- 			<img src="<?php bloginfo('template_url'); ?>/assets/img/mariage_01.jpg"> -->
 		</div>
 		<div class="col-md-5 col-lg-4 section-featured-text">
 			<div class="animated fadeInUp no-opacity">
@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="col-md-7 col-lg-8 section-featured-img">
-			<img src="<?php bloginfo('template_url'); ?>/assets/img/mariage_01.jpg" class="img-responsive">
+			<!-- 			<img src="<?php bloginfo('template_url'); ?>/assets/img/mariage_01.jpg"> -->
 		</div>
 	</div>
 </section>

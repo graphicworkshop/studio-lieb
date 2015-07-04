@@ -24,8 +24,8 @@
             init: function ()
             {
                 
-                $('.section-featured-text').css({
-                    'height': $('.section-featured-img').height()
+                $('.section-featured-img').css({
+                    'height': $('.section-featured-text').height()
                 });
 
                 var body = $("body"),

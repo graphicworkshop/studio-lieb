@@ -2,7 +2,7 @@
 /* --------- INTRO -------- */
 
 .intro { 
-	padding: 100px 0;
+	padding: 100px 0px 100px 0px;
 	background-color: @brand-gray-lighter;
 	text-align: center;
 	.intro-text {
@@ -21,7 +21,8 @@
 
 	.section-featured-text {
 		position: relative;
-
+		
+		overflow: hidden;
 		h2 {
 			margin-top: 70px;
 		}
@@ -35,7 +36,9 @@
 			height: 200px;
 			position: absolute;
 			bottom: 0px;
-
+			right:0;
+			
+			
 			&:before {
 				content: " ";
 				display: table;
@@ -50,9 +53,12 @@
 				position: absolute;
 			}
 		}
+	}
 
-		
 
+	.section-featured-img {
+		background:url("../img/mariage_01.jpg") no-repeat;
+		background-size:cover;
 	}
 
 	.thin-sep {
@@ -62,6 +68,15 @@
 }
 
 @media (min-width: @screen-lg-min) {
+
+	.section-featured-img {
+		height: 600px;
+	}
+
+	.section-featured-text {
+		height: 600px;
+	}
+
 /*.row {
 		
 		display: table;
