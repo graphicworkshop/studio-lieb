@@ -2,7 +2,7 @@
 
 	<?php //the_content(); ?>
 
-	<div class="container-fluid intro" id="about">
+	<div class="container intro" id="about">
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<h1>Richard Lieb, photographie professionnelle</h1>
@@ -10,7 +10,7 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-2 col-md-offset-5">
+			<div class="col-md-4 col-md-offset-4">
 				<a class="btn btn-primary btn-inverse center-block" href="#" role="button">Découvrez le studio</a>
 			</div>
 		</div>
