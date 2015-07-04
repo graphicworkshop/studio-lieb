@@ -47,7 +47,12 @@ function roots_display_sidebar() {
      */
     array(
       'is_404',
-      'is_front_page'
+      'is_front_page',
+
+          ['is_page_template', 'template-landing-page.php'],
+          ['is_singular', 'references'],
+          ['is_archive', 'prestations']
+
     ),
     /**
      * Page template checks (via is_page_template())

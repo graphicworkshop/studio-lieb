@@ -36,7 +36,7 @@
                 /*	==================================================
                  # Initialize all the reloadable JavaScript
                  ================================================== */
-                if (!Modernizr.touch)
+                /*if (!Modernizr.touch)
                 {
                     $(".animated").appear();
                     _window.trigger("scroll");
@@ -72,7 +72,7 @@
                     {
                         $(this).removeClass("animated no-opacity");
                     });
-                }
+                }*/
             }
         },
         // Home page
@@ -80,6 +80,40 @@
             init: function ()
             {
                 // JavaScript to be fired on the home page
+            }
+        },
+        'post_type_archive_portfolio': {
+            init: function () {
+                /*
+                 * ISOTOPE
+                 */
+
+                var $container = $('#list-isotope'); //The ID for the list with all the blog posts
+                $container.isotope({ //Isotope options, 'item' matches the class in the PHP
+                    itemSelector: '.item',
+                    layoutMode: 'masonry'
+                });
+
+                //Add the class selected to the item that is clicked, and remove from the others
+                var $optionSets = $('#filters'),
+                    $optionLinks = $optionSets.find('button');
+
+                $optionLinks.click(function () {
+                    var $this = $(this);
+                    // don't proceed if already selected
+                    if ($this.hasClass('selected')) {
+                        return false;
+                    }
+                    var $optionSet = $this.parents('#filters');
+                    $optionSets.find('.selected').removeClass('selected');
+                    $this.addClass('selected');
+
+                    //When an item is clicked, sort the items.
+                    var selector = $(this).attr('data-filter');
+                    $container.isotope({ filter: selector });
+
+                    return false;
+                });
             }
         },
         // About us page, note the change from about-us to about_us.
