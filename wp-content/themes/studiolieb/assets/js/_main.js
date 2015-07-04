@@ -27,22 +27,31 @@
                 $('.section-featured-text').css({
                     'height': $('.section-featured-img').height()
                 });
+
+                var body = $("body"),
+                    _window = $(window),
+                    main_nav = $("#menu-primary-navigation"),
+                    nav_bar = $(".navbar"),
+                    navbar_fixed_top = $(".navbar-fixed-top");
+
+                
                 
               
-                /*	==================================================
-                 # Custom Form
-                 /* ================================================== */
-                
-                /*	==================================================
+               
+                /*  ==================================================
                  # Initialize all the reloadable JavaScript
                  ================================================== */
                 /*if (!Modernizr.touch)
                 {
+                    
+
+
+
                     $(".animated").appear();
                     _window.trigger("scroll");
                     $(document.body).on("appear", ".animated", function ()
                     {
-                        showChart();
+                       
                         var animationType = $(this).attr("data-animation");
                         var animationDelay = $(this).attr("data-animation-delay");
                         $(this).each(function ()
@@ -80,6 +89,56 @@
             init: function ()
             {
                 // JavaScript to be fired on the home page
+
+                /*  ==================================================
+                 # Owlcarousel
+                 /* ================================================== */
+                $("#slider-news").owlCarousel({
+                    items            : 1, //10 items above 1000px browser width
+                    itemsDesktop     : [1000, 4], //5 items between 1000px and 901px
+                    itemsDesktopSmall: [900, 3], // betweem 900px and 601px
+                    itemsTablet      : [600, 2], //2 items between 600 and 0
+                    itemsMobile      : false, // itemsMobile disabled - inherit from itemsTablet option
+                    navigation       : true,
+                    navigationText   : [
+                        "<i class='ci-right-big-arrow'></i>",
+                        "<i class='ci-left-big-arrow'></i>"
+                    ]
+                });
+
+                /*  ==================================================
+                 # Overlay
+                 /* ================================================== */
+
+                 if (Modernizr.touch) {
+                    // show the close overlay button
+                    $(".close-overlay").removeClass("hidden");
+                    // handle the adding of hover class when clicked
+                    $(".effects .img").click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!$(this).hasClass("hover")) {
+                            $(this).addClass("hover");
+                        }
+                    });
+                    // handle the closing of the overlay
+                    $(".close-overlay").click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if ($(this).closest(".img").hasClass("hover")) {
+                            $(this).closest(".img").removeClass("hover");
+                        }
+                    });
+                } else {
+                    // handle the mouseenter functionality
+                    $(".effects .img").mouseenter(function() {
+                        $(this).addClass("hover");
+                    })
+                    // handle the mouseleave functionality
+                    .mouseleave(function() {
+                        $(this).removeClass("hover");
+                    });
+                }
             }
         },
         'post_type_archive_portfolio': {

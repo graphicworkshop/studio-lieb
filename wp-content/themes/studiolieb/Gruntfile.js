@@ -18,9 +18,9 @@ module.exports = function(grunt) {
     'assets/vendor/bootstrap/js/scrollspy.js',
     'assets/vendor/bootstrap/js/tab.js',
     'assets/vendor/bootstrap/js/affix.js',
-    //'assets/vendor/lazarofl.owlcarousel/owl-carousel/owl.carousel.js',
+    'assets/vendor/lazarofl.owlcarousel/owl-carousel/owl.carousel.js',
     //'assets/vendor/fitvids/jquery.fitvids.js',
-    //'assets/vendor/jquery.appear.js/jquery.appear.js',
+    'assets/vendor/jquery.appear.js/jquery.appear.js',
     'assets/js/plugins/*.js',
     'assets/js/_*.js'
   ];
@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         files: {
           'assets/css/main.css': [
             'assets/less/main.less',
-            //'assets/vendor/lazarofl.owlcarousel/owl-carousel/owl.carousel.css'
+            'assets/vendor/lazarofl.owlcarousel/owl-carousel/owl.carousel.css'
           ]
         },
         options: {
