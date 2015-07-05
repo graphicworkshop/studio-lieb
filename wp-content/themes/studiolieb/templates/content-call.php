@@ -6,7 +6,7 @@
 		</div>
 		<div class="row">
 			<div class="col-md-4 col-md-offset-4">
-				<a class="btn btn-primary center-block" href="#" role="button">Découvrez le studio</a>
+				<a class="btn btn-primary center-block" href="<?php echo get_permalink( 11 ); ?>" role="button">Contactez-moi</a>
 			</div>
 		</div>
 	</div>

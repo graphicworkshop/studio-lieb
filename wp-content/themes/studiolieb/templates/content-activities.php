@@ -79,7 +79,7 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-4 col-md-offset-4">
-				<a class="btn btn-default center-block" href="#" role="button">Découvrez toutes les prestations</a>
+				<a class="btn btn-default center-block" href="<?php echo get_permalink( 9 ); ?>" role="button">Découvrez toutes les prestations</a>
 			</div>
 		</div>
 	</div>
