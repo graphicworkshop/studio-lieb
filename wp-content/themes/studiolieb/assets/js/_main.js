@@ -13,75 +13,159 @@
  * To use the default WordPress version of jQuery, go to lib/config.php and
  * remove or comment out: add_theme_support('jquery-cdn');
  * ======================================================================== */
-(function ($)
-{
+ (function ($)
+ {
 
 // Use this variable to set up the common and page specific functions. If you 
 // rename this variable, you will also need to rename the namespace below.
-    var Roots = {
+var Roots = {
         // All pages
         common  : {
             init: function ()
             {
-                
-                $('.section-featured-img').css({
-                    'height': $('.section-featured-text').height()
-                });
 
-                var body = $("body"),
-                    _window = $(window),
-                    main_nav = $("#menu-primary-navigation"),
-                    nav_bar = $(".navbar"),
-                    navbar_fixed_top = $(".navbar-fixed-top");
+               $('.section-featured-img').css({
+                'height': $('.section-featured-text').height()
+            });
 
-                
-                
+               var body = $("body"),
+               _window = $(window),
+               main_nav = $("#menu-primary-navigation"),
+               nav_bar = $(".navbar"),
+               navbar_fixed_top = $(".navbar-fixed-top");
+
+/*  ==================================================
+              # Initialize all the reloadable JavaScript
+              ================================================== */
+              if (!Modernizr.touch)
+              {
+
+                 $(".animated").appear();
+                 _window.trigger("scroll");
+                 $(document.body).on("appear", ".animated", function ()
+                 {
+
+                     var animationType = $(this).attr("data-animation");
+                     var animationDelay = $(this).attr("data-animation-delay");
+                     $(this).each(function ()
+                     {
+                         var $this = $(this);
+                         // add the custom animation delay to the element
+                         $this.css({
+                             "-webkit-animation-delay": animationDelay,
+                             "-moz-animation-delay"   : animationDelay,
+                             "animation-delay"        : animationDelay
+                         });
+                         // add the animation to the element
+                         $this.addClass(animationType);
+                         if ($this.hasClass("no-opacity"))
+                         {
+                             $this.one("webkitAnimationEnd oanimationend msAnimationEnd animationend", function ()
+                             {
+                                 $this.removeClass("no-opacity");
+                             });
+                         }
+                     });
+                 });
+}
+else
+{
+ $(".animated").each(function ()
+ {
+     $(this).removeClass("animated no-opacity");
+ });
+}
+
+
+
+
+/*  ==================================================
+               # Overlay
+               /* ================================================== */
+               if (Modernizr.touch) {
+                  // show the close overlay button
+                  $(".close-overlay").removeClass("hidden");
+                  // handle the adding of hover class when clicked
+                  $(".effects .img").click(function(e) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!$(this).hasClass("hover")) {
+                          $(this).addClass("hover");
+                      }
+                  });
+                  // handle the closing of the overlay
+                  $(".close-overlay").click(function(e) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if ($(this).closest(".img").hasClass("hover")) {
+                          $(this).closest(".img").removeClass("hover");
+                      }
+                  });
+              } else {
+                  // handle the mouseenter functionality
+                  $(".effects .img").mouseenter(function() {
+                      $(this).addClass("hover");
+                  })
+                  // handle the mouseleave functionality
+                  .mouseleave(function() {
+                      $(this).removeClass("hover");
+                  });
+              }
               
-               
-                /*  ==================================================
-                 # Initialize all the reloadable JavaScript
-                 ================================================== */
-                if (!Modernizr.touch)
-                {
-                    
+          }
+
+      },
 
 
 
-                    $(".animated").appear();
-                    _window.trigger("scroll");
-                    $(document.body).on("appear", ".animated", function ()
-                    {
-                       
-                        var animationType = $(this).attr("data-animation");
-                        var animationDelay = $(this).attr("data-animation-delay");
-                        $(this).each(function ()
-                        {
-                            var $this = $(this);
-                            // add the custom animation delay to the element
-                            $this.css({
-                                "-webkit-animation-delay": animationDelay,
-                                "-moz-animation-delay"   : animationDelay,
-                                "animation-delay"        : animationDelay
-                            });
-                            // add the animation to the element
-                            $this.addClass(animationType);
-                            if ($this.hasClass("no-opacity"))
-                            {
-                                $this.one("webkitAnimationEnd oanimationend msAnimationEnd animationend", function ()
-                                {
-                                    $this.removeClass("no-opacity");
-                                });
-                            }
-                        });
-                    });
-                }
-                else
-                {
-                    $(".animated").each(function ()
-                    {
-                        $(this).removeClass("animated no-opacity");
-                    });
-                }
+
+
+      'single_portfolio': {
+        init: function () {
+                // translate magnific popup
+                $.extend(true, $.magnificPopup.defaults, {
+  tClose: 'Fermer (Echap)', // Alt text on close button
+  tLoading: 'Chargement...', // Text that is displayed during loading. Can contain %curr% and %total% keys
+  gallery: {
+    tPrev: 'Précédent (Flèche gauche)', // Alt text on left arrow
+    tNext: 'Suivant (Flèche droite)', // Alt text on right arrow
+    tCounter: '%curr% sur %total%' // Markup for "1 of 7" counter
+},
+image: {
+    tError: '<a href="%url%">L\'image</a> n\'a pas pu être chargée.' // Error message when image could not be loaded
+},
+ajax: {
+    tError: '<a href="%url%">Le contenu</a> n\'a pas pu être chargé.' // Error message when ajax request failed
+}
+});
+
+                $('.popup-gallery').magnificPopup({
+                    delegate: 'a',
+                    type: 'image',
+                    tLoading: 'Chargement',
+                    mainClass: 'mfp-img-mobile',
+                    gallery: {
+                        enabled: true,
+                        navigateByImgClick: true,
+                        preload: [0, 1] // Will preload 0 - before current, and 1 after the current image
+                    },
+                    image: {
+                        tError: 'L\'image n\'a pas pu être chargée'
+                    }
+                });
+            }
+        },
+        archive_portfolio    : {
+            init: function ()
+            {
+                var $grid = $('.grid').isotope({
+  // main isotope options
+  itemSelector: '.grid-item',
+  // options for masonry layout mode
+  masonry: {
+    columnWidth: '.grid-sizer',
+}
+});
             }
         },
         // Home page
@@ -93,7 +177,7 @@
                 /*  ==================================================
                  # Owlcarousel
                  /* ================================================== */
-                $("#slider-news").owlCarousel({
+                 $("#slider-news").owlCarousel({
                     items            : 1, //10 items above 1000px browser width
                     itemsDesktop     : [1000, 4], //5 items between 1000px and 901px
                     itemsDesktopSmall: [900, 3], // betweem 900px and 601px
@@ -101,47 +185,14 @@
                     itemsMobile      : false, // itemsMobile disabled - inherit from itemsTablet option
                     navigation       : true,
                     navigationText   : [
-                        "<i class='ci-right-big-arrow'></i>",
-                        "<i class='ci-left-big-arrow'></i>"
+                    "<i class='ci-right-big-arrow'></i>",
+                    "<i class='ci-left-big-arrow'></i>"
                     ]
                 });
+             }
 
-                /*  ==================================================
-                 # Overlay
-                 /* ================================================== */
-
-                 if (Modernizr.touch) {
-                    // show the close overlay button
-                    $(".close-overlay").removeClass("hidden");
-                    // handle the adding of hover class when clicked
-                    $(".effects .img").click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (!$(this).hasClass("hover")) {
-                            $(this).addClass("hover");
-                        }
-                    });
-                    // handle the closing of the overlay
-                    $(".close-overlay").click(function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if ($(this).closest(".img").hasClass("hover")) {
-                            $(this).closest(".img").removeClass("hover");
-                        }
-                    });
-                } else {
-                    // handle the mouseenter functionality
-                    $(".effects .img").mouseenter(function() {
-                        $(this).addClass("hover");
-                    })
-                    // handle the mouseleave functionality
-                    .mouseleave(function() {
-                        $(this).removeClass("hover");
-                    });
-                }
-            }
-        },
-        'post_type_archive_portfolio': {
+         },
+         'post_type_archive_portfolio': {
             init: function () {
                 /*
                  * ISOTOPE
@@ -155,7 +206,7 @@
 
                 //Add the class selected to the item that is clicked, and remove from the others
                 var $optionSets = $('#filters'),
-                    $optionLinks = $optionSets.find('button');
+                $optionLinks = $optionSets.find('button');
 
                 $optionLinks.click(function () {
                     var $this = $(this);
@@ -185,24 +236,24 @@
     };
 // The routing fires all common scripts, followed by the page specific scripts.
 // Add additional events for more control over timing e.g. a finalize event
-    var UTIL = {
-        fire      : function (func, funcname, args)
+var UTIL = {
+    fire      : function (func, funcname, args)
+    {
+        var namespace = Roots;
+        funcname = (funcname === undefined) ? 'init' : funcname;
+        if (func !== '' && namespace[func] && typeof namespace[func][funcname] === 'function')
         {
-            var namespace = Roots;
-            funcname = (funcname === undefined) ? 'init' : funcname;
-            if (func !== '' && namespace[func] && typeof namespace[func][funcname] === 'function')
-            {
-                namespace[func][funcname](args);
-            }
-        },
-        loadEvents: function ()
-        {
-            UTIL.fire('common');
-            $.each(document.body.className.replace(/-/g, '_').split(/\s+/), function (i, classnm)
-            {
-                UTIL.fire(classnm);
-            });
+            namespace[func][funcname](args);
         }
-    };
-    $(document).ready(UTIL.loadEvents);
+    },
+    loadEvents: function ()
+    {
+        UTIL.fire('common');
+        $.each(document.body.className.replace(/-/g, '_').split(/\s+/), function (i, classnm)
+        {
+            UTIL.fire(classnm);
+        });
+    }
+};
+$(document).ready(UTIL.loadEvents);
 })(jQuery); // Fully reference jQuery after this point.

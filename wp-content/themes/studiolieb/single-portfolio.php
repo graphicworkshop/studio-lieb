@@ -10,7 +10,7 @@ if (get_field('galerie_portfolio')){
 		$imgs = get_field('galerie_portfolio');
 		if ($imgs) {
 			foreach ($imgs as $img) {
-				echo '<a href="' . $img['url'] . '" class="col-sm-3">
+				echo '<a href="' . $img['url'] . '" class="col-sm-4">
 				<img src="' . $img['sizes']['medium'] . '"
 				class="img-responsive" alt="' . $img['alt'] . '">
 			</a>';

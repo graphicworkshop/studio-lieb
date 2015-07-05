@@ -26,6 +26,7 @@ function roots_scripts() {
       'css'           => '/assets/css/main.css',
       'js'            => '/assets/js/scripts.js',
       'modernizr'     => '/assets/vendor/modernizr/modernizr.js',
+      //'magnificpopup' => '/assets/vendor/magnific-popup/dist/jquery.magnific-popup.js',
       'jquery'        => '//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js',
       'isotope'       => '//cdnjs.cloudflare.com/ajax/libs/jquery.isotope/2.2.0/isotope.pkgd.min.js'
       //'jquery-easing' => '//cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js',
@@ -53,6 +54,7 @@ function roots_scripts() {
     wp_deregister_script('jquery');
     wp_register_script('jquery', $assets['jquery'], array(), null, false);
     wp_register_script('isotope', $assets['isotope'], array(), null, false);
+    wp_register_script('magnificpopup', $assets['magnificpopup'], array(), null, false);
     add_filter('script_loader_src', 'roots_jquery_local_fallback', 10, 2);
   }
 
@@ -63,6 +65,7 @@ function roots_scripts() {
   wp_enqueue_script('modernizr', get_template_directory_uri() . $assets['modernizr'], array(), null, false);
   wp_enqueue_script('jquery');
   wp_enqueue_script('isotope');
+  wp_enqueue_script('magnificpopup');
   wp_enqueue_script('roots_js', get_template_directory_uri() . $assets['js'], array(), null, true);
   //wp_enqueue_script('jquery-easing', $assets['jquery-easing'], array(), null, false);
   //wp_enqueue_script('jquery.touchswipe', $assets['jquery.touchswipe'], array(), null, false);

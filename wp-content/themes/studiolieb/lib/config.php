@@ -49,19 +49,19 @@ function roots_display_sidebar() {
       'is_404',
       'is_front_page',
 
-          ['is_page_template', 'template-landing-page.php'],
-          ['is_singular', 'references'],
-          ['is_archive', 'prestations']
+      ['is_page_template', 'template-landing-page.php'],
+      ['is_singular', 'portfolio'],
+      ['is_archive', 'prestations']
 
-    ),
+      ),
     /**
      * Page template checks (via is_page_template())
      * Any of these page templates that return true won't show the sidebar
      */
     array(
       'template-custom.php'
-    )
-  );
+      )
+    );
 
   return apply_filters('roots/display_sidebar', $sidebar_config->display);
 }

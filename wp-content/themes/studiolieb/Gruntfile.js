@@ -20,6 +20,7 @@ module.exports = function(grunt) {
     'assets/vendor/bootstrap/js/affix.js',
     //'assets/vendor/lazarofl.owlcarousel/owl-carousel/owl.carousel.js',
     'assets/vendor/OwlCarousel/owl-carousel/owl.carousel.js',
+    'assets/vendor/magnific-popup/dist/jquery.magnific-popup.js',
     //'assets/vendor/fitvids/jquery.fitvids.js',
     'assets/vendor/jquery.appear.js/jquery.appear.js',
     'assets/js/plugins/*.js',
@@ -43,7 +44,8 @@ module.exports = function(grunt) {
         files: {
           'assets/css/main.css': [
             'assets/less/main.less',
-            'assets/vendor/OwlCarousel/owl-carousel/owl.carousel.css'
+            'assets/vendor/OwlCarousel/owl-carousel/owl.carousel.css',
+            'assets/vendor/magnific-popup/dist/magnific-popup.css'
           ]
         },
         options: {
