@@ -38,4 +38,3 @@
      </div>
   </div>
 </header>
-<div class="hero"></div>
