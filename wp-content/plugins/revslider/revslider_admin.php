@@ -104,7 +104,7 @@
 		 * Include wanted submenu page
 		 */
 		public function display_plugin_submenu_page_google_fonts() {
-			self::display_plugin_submenu('themepunch-google-fonts');
+			//self::display_plugin_submenu('themepunch-google-fonts');
 		}
 
 		public static function display_plugin_submenu($subMenu){

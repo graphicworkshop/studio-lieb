@@ -25,8 +25,6 @@ $news_query = new WP_Query($args);
 			{
 				?>
 
-
-
 				<div id="slider-news" class="owl-carousel owl-theme">
 
 					<?php

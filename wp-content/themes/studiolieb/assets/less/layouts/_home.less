@@ -8,8 +8,8 @@
 	.intro-text {
 		.font-size(1.8);
 		color: @brand-gray-light;
-		line-height: 1.8em;
-		margin-top: 25px;
+		line-height: 2em;
+		margin: 25px 0;
 	}
 	&#call {
 		p {
@@ -21,6 +21,19 @@
 	}
 }
 
+/* --------- ABOUT -------- */
+
+#about {
+	padding-top:20px;
+	h1 {
+		&:before {
+			.icons-title;
+			content:@icon-AP;
+			.font-size(5);
+		}
+	}
+}
+
 /* --------- FEATURED PROJECTS -------- */
 
 #featured-projet {
@@ -28,15 +41,14 @@
 
 	.section-featured-text {
 		position: relative;
-		
 		overflow: hidden;
 		h2 {
-			margin-top: 70px;
+			margin-top: 60px;
 		}
 		p {
 			.font-size(1.6);
 			padding: 0px 60px;
-    		line-height: 1.8em;
+			line-height: 1.9em;
 			text-align: justify;
 		}
 		.small-featured-img {
@@ -60,6 +72,12 @@
 				position: absolute;
 			}
 		}
+		[class^="icon-"], [class*=" icon-"] {
+			margin-bottom:10px;
+			display:block;
+			color:@brand-primary;
+			font-weight:400;
+		}
 	}
 
 
@@ -69,7 +87,7 @@
 	}
 
 	.thin-sep {
-		margin-top: 10%;
+		margin-top: 6%;
 	}
 
 }
@@ -107,12 +125,21 @@
 
 /* --------- NEWS -------- */
 #news {
+	padding: 35px 0px 35px 0px;
 	h3 {
 		.font-size(1.8);
 		color: @brand-primary;
+		line-height:2em;
+		
+		&:before {
+			.icons-title;
+			content:@icon-Calendrier;
+			
+		}
 	}
 	.thin-sep { 
 		background-color: @brand-primary;
+		margin-bottom:30px;
 	}
 
 	header {
@@ -157,22 +184,25 @@
 	.owl-page {
 		display: inline-block;
 		zoom: 1;
+		margin-top: 50px;
 		span {
 			display: block;
 			width: 12px;
 			height: 12px;
-			margin: 5px 7px;
-			filter: Alpha(Opacity=50); /*IE7 fix*/
-			opacity: 0.5;
+			margin: 0 6px;
 			border-radius: 20px;
-			background: @brand-gray;
+			border:1px solid @brand-gray-light;
+			background: @light;
 		}
 		&.active span,
 		&:hover span {
+			background:@brand-gray-light;
 			filter: Alpha(Opacity=100); /*IE7 fix*/
 			opacity: 1;
 		}
 	}
+
+
 	.owl-buttons {
 		div {
 			padding: 5px 9px;
@@ -182,13 +212,19 @@
 				left: -45px;
 				top: 50%;
 				margin-top: -32px;
+				:before {
+					content:"\e257";
+				}
 			}
 			&.owl-next {
 				margin-top: -32px;
 				right: -45px;
 				top: 50%;
+				:before {
+					content:"\e258";
+				}
 			}
-			i {
+			i:not(.glyphicon) {
 				font-size: 32px;
 				color: @brand-primary;
 				&:hover {
@@ -262,11 +298,11 @@
 		&.hover {
 			.overlay { 
 				opacity: 1;
-				 a.expand { 
-				 	top: 50%; 
-				 	margin-top: -30px; 
-				 	opacity: 1; 
-				 }
+				a.expand { 
+					top: 50%; 
+					margin-top: -30px; 
+					opacity: 1; 
+				}
 			}
 		}
 	}

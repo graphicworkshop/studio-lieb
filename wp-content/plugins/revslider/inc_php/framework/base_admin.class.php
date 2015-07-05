@@ -402,7 +402,7 @@
 			}
 			
 			if(!isset($GLOBALS['admin_page_hooks']['themepunch-google-fonts'])){ //only add if menu is not already registered
-				add_menu_page(__('Punch Fonts', REVSLIDER_TEXTDOMAIN), __('Punch Fonts', REVSLIDER_TEXTDOMAIN), $role, 'themepunch-google-fonts', array(self::$t, 'display_plugin_submenu_page_google_fonts'), 'dashicons-editor-textcolor');
+				//add_menu_page(__('Punch Fonts', REVSLIDER_TEXTDOMAIN), __('Punch Fonts', REVSLIDER_TEXTDOMAIN), $role, 'themepunch-google-fonts', array(self::$t, 'display_plugin_submenu_page_google_fonts'), 'dashicons-editor-textcolor');
 			}
 		}
 		

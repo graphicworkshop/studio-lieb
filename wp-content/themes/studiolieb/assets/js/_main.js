@@ -34,9 +34,6 @@
                     nav_bar = $(".navbar"),
                     navbar_fixed_top = $(".navbar-fixed-top");
 
-                
-                
-              
                
                 /*  ==================================================
                  # Initialize all the reloadable JavaScript
@@ -44,9 +41,6 @@
                 if (!Modernizr.touch)
                 {
                     
-
-
-
                     $(".animated").appear();
                     _window.trigger("scroll");
                     $(document.body).on("appear", ".animated", function ()
@@ -101,8 +95,8 @@
                     itemsMobile      : false, // itemsMobile disabled - inherit from itemsTablet option
                     navigation       : true,
                     navigationText   : [
-                        "<i class='ci-right-big-arrow'></i>",
-                        "<i class='ci-left-big-arrow'></i>"
+                        "<i class='glyphicon'></i>",
+                        "<i class='glyphicon'></i>"
                     ]
                 });
 
