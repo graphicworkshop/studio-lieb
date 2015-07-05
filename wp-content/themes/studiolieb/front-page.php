@@ -6,7 +6,7 @@
 	<section class="full-box" id="about">
 		<div class="container" id="about">
 			<div class="row">
-				<div class="col-md-8 col-md-offset-2">
+				<div class="col-md-12">
 					<h1>Richard Lieb, photographie professionnelle</h1>
 					<p class="intro-text">Spécialiste des prises de vues industrielles, commerciales ou publicitaires, je suis en mesure de réaliser des photos pour vos packshots, vos plaquettes d'entreprises et fiches techniques produits, ou des photos reportages industriels. Je propose également des prestations de photographies de portraits en studio ou sur site et enfin de photographies de mariage.</p>
 				</div>
