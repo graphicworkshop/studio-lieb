@@ -185,8 +185,8 @@ ajax: {
                     itemsMobile      : false, // itemsMobile disabled - inherit from itemsTablet option
                     navigation       : true,
                     navigationText   : [
-                    "<i class='ci-right-big-arrow'></i>",
-                    "<i class='ci-left-big-arrow'></i>"
+                    "<i class='glyphicon'></i>",
+                    "<i class='glyphicon'></i>"
                     ]
                 });
              }
