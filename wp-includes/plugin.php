@@ -429,7 +429,7 @@ function doing_action( $action = null ) {
  *                                  Lower numbers correspond with earlier execution,
  *                                  and functions with the same priority are executed
  *                                  in the order in which they were added to the action.
- * @param int      $accepted_args   Optional. The number of arguments the function accept. Default 1.
+ * @param int      $accepted_args   Optional. The number of arguments the function accepts. Default 1.
  * @return true Will always return true.
  */
 function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
@@ -615,7 +615,7 @@ function has_action($tag, $function_to_check = false) {
  * @param string   $tag                The action hook to which the function to be removed is hooked.
  * @param callback $function_to_remove The name of the function which should be removed.
  * @param int      $priority           Optional. The priority of the function. Default 10.
- * @return boolean Whether the function is removed.
+ * @return bool Whether the function is removed.
  */
 function remove_action( $tag, $function_to_remove, $priority = 10 ) {
 	return remove_filter( $tag, $function_to_remove, $priority );

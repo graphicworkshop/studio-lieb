@@ -434,10 +434,13 @@ function _wp_ajax_add_hierarchical_term() {
 		$checked_categories[] = $cat_id;
 		if ( $parent ) // Do these all at once in a second
 			continue;
+
 		ob_start();
-			wp_terms_checklist( 0, array( 'taxonomy' => $taxonomy->name, 'descendants_and_self' => $cat_id, 'selected_cats' => $checked_categories, 'popular_cats' => $popular_ids ));
-		$data = ob_get_contents();
-		ob_end_clean();
+
+		wp_terms_checklist( 0, array( 'taxonomy' => $taxonomy->name, 'descendants_and_self' => $cat_id, 'selected_cats' => $checked_categories, 'popular_cats' => $popular_ids ));
+
+		$data = ob_get_clean();
+
 		$add = array(
 			'what' => $taxonomy->name,
 			'id' => $cat_id,
@@ -458,9 +461,11 @@ function _wp_ajax_add_hierarchical_term() {
 		}
 
 		ob_start();
-			wp_terms_checklist( 0, array('taxonomy' => $taxonomy->name, 'descendants_and_self' => $term_id, 'selected_cats' => $checked_categories, 'popular_cats' => $popular_ids));
-		$data = ob_get_contents();
-		ob_end_clean();
+
+		wp_terms_checklist( 0, array('taxonomy' => $taxonomy->name, 'descendants_and_self' => $term_id, 'selected_cats' => $checked_categories, 'popular_cats' => $popular_ids));
+
+		$data = ob_get_clean();
+
 		$add = array(
 			'what' => $taxonomy->name,
 			'id' => $term_id,
@@ -470,12 +475,14 @@ function _wp_ajax_add_hierarchical_term() {
 	}
 
 	ob_start();
-		wp_dropdown_categories( array(
-			'taxonomy' => $taxonomy->name, 'hide_empty' => 0, 'name' => 'new'.$taxonomy->name.'_parent', 'orderby' => 'name',
-			'hierarchical' => 1, 'show_option_none' => '&mdash; '.$taxonomy->labels->parent_item.' &mdash;'
-		) );
-	$sup = ob_get_contents();
-	ob_end_clean();
+
+	wp_dropdown_categories( array(
+		'taxonomy' => $taxonomy->name, 'hide_empty' => 0, 'name' => 'new'.$taxonomy->name.'_parent', 'orderby' => 'name',
+		'hierarchical' => 1, 'show_option_none' => '&mdash; '.$taxonomy->labels->parent_item.' &mdash;'
+	) );
+
+	$sup = ob_get_clean();
+
 	$add['supplemental'] = array( 'newcat_parent' => $sup );
 
 	$x = new WP_Ajax_Response( $add );
@@ -914,8 +921,7 @@ function wp_ajax_get_comments( $action ) {
 		get_comment( $comment );
 		$wp_list_table->single_row( $comment );
 	}
-	$comment_list_item = ob_get_contents();
-	ob_end_clean();
+	$comment_list_item = ob_get_clean();
 
 	$x->add( array(
 		'what' => 'comments',
@@ -1325,7 +1331,6 @@ function wp_ajax_closed_postboxes() {
  */
 function wp_ajax_hidden_columns() {
 	check_ajax_referer( 'screen-options-nonce', 'screenoptionnonce' );
-	$hidden = explode( ',', isset( $_POST['hidden'] ) ? $_POST['hidden'] : '' );
 	$page = isset( $_POST['page'] ) ? $_POST['page'] : '';
 
 	if ( $page != sanitize_key( $page ) )
@@ -1334,8 +1339,8 @@ function wp_ajax_hidden_columns() {
 	if ( ! $user = wp_get_current_user() )
 		wp_die( -1 );
 
-	if ( is_array($hidden) )
-		update_user_option($user->ID, "manage{$page}columnshidden", $hidden, true);
+	$hidden = ! empty( $_POST['hidden'] ) ? explode( ',', $_POST['hidden'] ) : array();
+	update_user_option( $user->ID, "manage{$page}columnshidden", $hidden, true );
 
 	wp_die( 1 );
 }
@@ -2938,6 +2943,8 @@ function wp_ajax_destroy_sessions() {
  * @see Plugin_Upgrader
  */
 function wp_ajax_update_plugin() {
+	global $wp_filesystem;
+
 	$plugin = urldecode( $_POST['plugin'] );
 
 	$status = array(
@@ -3001,10 +3008,18 @@ function wp_ajax_update_plugin() {
 	} else if ( is_wp_error( $result ) ) {
 		$status['error'] = $result->get_error_message();
  		wp_send_json_error( $status );
-	} else if ( is_bool( $result ) && ! $result ) {
+
+ 	} else if ( is_bool( $result ) && ! $result ) {
 		$status['errorCode'] = 'unable_to_connect_to_filesystem';
 		$status['error'] = __( 'Unable to connect to the filesystem. Please confirm your credentials.' );
+
+		// Pass through the error from WP_Filesystem if one was raised
+		if ( is_wp_error( $wp_filesystem->errors ) && $wp_filesystem->errors->get_error_code() ) {
+			$status['error'] = $wp_filesystem->errors->get_error_message();
+		}
+
 		wp_send_json_error( $status );
+
 	}
 }
 

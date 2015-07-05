@@ -219,9 +219,9 @@ function get_plugin_files($plugin) {
  *
  * WordPress only supports plugin files in the base plugins directory
  * (wp-content/plugins) and in one directory above the plugins directory
- * (wp-content/plugins/my-plugin). The file it looks for has the plugin data and
- * must be found in those two locations. It is recommended that do keep your
- * plugin files in directories.
+ * (wp-content/plugins/my-plugin). The file it looks for has the plugin data
+ * and must be found in those two locations. It is recommended to keep your
+ * plugin files in their own directories.
  *
  * The file with the plugin data is the file that will be included and therefore
  * needs to have the main execution for the plugin. This does not mean
@@ -771,8 +771,8 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 	ob_start();
 	$url = wp_nonce_url('plugins.php?action=delete-selected&verify-delete=1&' . implode('&', $checked), 'bulk-plugins');
 	if ( false === ($credentials = request_filesystem_credentials($url)) ) {
-		$data = ob_get_contents();
-		ob_end_clean();
+		$data = ob_get_clean();
+
 		if ( ! empty($data) ){
 			include_once( ABSPATH . 'wp-admin/admin-header.php');
 			echo $data;
@@ -784,8 +784,8 @@ function delete_plugins( $plugins, $deprecated = '' ) {
 
 	if ( ! WP_Filesystem($credentials) ) {
 		request_filesystem_credentials($url, '', true); //Failed to connect, Error and request again
-		$data = ob_get_contents();
-		ob_end_clean();
+		$data = ob_get_clean();
+
 		if ( ! empty($data) ){
 			include_once( ABSPATH . 'wp-admin/admin-header.php');
 			echo $data;
@@ -1834,7 +1834,7 @@ function unregister_setting( $option_group, $option_name, $sanitize_callback = '
 		$option_group = 'reading';
 	}
 
-	$pos = array_search( $option_name, (array) $new_whitelist_options );
+	$pos = array_search( $option_name, (array) $new_whitelist_options[ $option_group ] );
 	if ( $pos !== false )
 		unset( $new_whitelist_options[ $option_group ][ $pos ] );
 	if ( $sanitize_callback != '' )

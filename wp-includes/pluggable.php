@@ -409,7 +409,7 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 		try {
 			// Break $recipient into name and address parts if in the format "Foo <bar@baz.com>"
 			$recipient_name = '';
-			if( preg_match( '/(.*)<(.+)>/', $recipient, $matches ) ) {
+			if ( preg_match( '/(.*)<(.+)>/', $recipient, $matches ) ) {
 				if ( count( $matches ) == 3 ) {
 					$recipient_name = $matches[1];
 					$recipient = $matches[2];
@@ -431,7 +431,7 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 			try {
 				// Break $recipient into name and address parts if in the format "Foo <bar@baz.com>"
 				$recipient_name = '';
-				if( preg_match( '/(.*)<(.+)>/', $recipient, $matches ) ) {
+				if ( preg_match( '/(.*)<(.+)>/', $recipient, $matches ) ) {
 					if ( count( $matches ) == 3 ) {
 						$recipient_name = $matches[1];
 						$recipient = $matches[2];
@@ -449,7 +449,7 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 			try {
 				// Break $recipient into name and address parts if in the format "Foo <bar@baz.com>"
 				$recipient_name = '';
-				if( preg_match( '/(.*)<(.+)>/', $recipient, $matches ) ) {
+				if ( preg_match( '/(.*)<(.+)>/', $recipient, $matches ) ) {
 					if ( count( $matches ) == 3 ) {
 						$recipient_name = $matches[1];
 						$recipient = $matches[2];
@@ -1091,10 +1091,6 @@ function check_admin_referer( $action = -1, $query_arg = '_wpnonce' ) {
 	$adminurl = strtolower(admin_url());
 	$referer = strtolower(wp_get_referer());
 	$result = isset($_REQUEST[$query_arg]) ? wp_verify_nonce($_REQUEST[$query_arg], $action) : false;
-	if ( !$result && !(-1 == $action && strpos($referer, $adminurl) === 0) ) {
-		wp_nonce_ays($action);
-		die();
-	}
 
 	/**
 	 * Fires once the admin request has been validated or not.
@@ -1106,6 +1102,12 @@ function check_admin_referer( $action = -1, $query_arg = '_wpnonce' ) {
 	 *                          0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
 	 */
 	do_action( 'check_admin_referer', $action, $result );
+
+	if ( ! $result && ! ( -1 == $action && strpos( $referer, $adminurl ) === 0 ) ) {
+		wp_nonce_ays( $action );
+		die();
+	}
+
 	return $result;
 }
 endif;
@@ -1137,7 +1139,7 @@ function check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
 
 	$result = wp_verify_nonce( $nonce, $action );
 
-	if ( $die && false == $result ) {
+	if ( $die && false === $result ) {
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			wp_die( -1 );
 		else
@@ -1260,7 +1262,7 @@ if ( !function_exists('wp_safe_redirect') ) :
  * path. A plugin can therefore set or remove allowed host(s) to or from the
  * list.
  *
- * If the host is not allowed, then the redirect is to wp-admin on the siteurl
+ * If the host is not allowed, then the redirect defaults to wp-admin on the siteurl
  * instead. This prevents malicious redirects which redirect to another host,
  * but only used in a few places.
  *
@@ -1271,7 +1273,15 @@ function wp_safe_redirect($location, $status = 302) {
 	// Need to look at the URL the way it will end up in wp_redirect()
 	$location = wp_sanitize_redirect($location);
 
-	$location = wp_validate_redirect($location, admin_url());
+	/**
+	 * Filter the redirect fallback URL for when the provided redirect is not safe (local).
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string $fallback_url	The fallback URL to use by default.
+	 * @param int    $status        The redirect status.
+	 */
+	$location = wp_validate_redirect( $location, apply_filters( 'wp_safe_redirect_fallback', admin_url(), $status ) );
 
 	wp_redirect($location, $status);
 }
@@ -1454,7 +1464,6 @@ function wp_notify_postauthor( $comment_id, $deprecated = null ) {
 			$notify_message .= sprintf( __( 'Author: %1$s (IP: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 			$notify_message .= sprintf( __( 'E-mail: %s' ), $comment->comment_author_email ) . "\r\n";
 			$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
-			$notify_message .= sprintf( __( 'Whois: %s' ), "http://whois.arin.net/rest/ip/{$comment->comment_author_IP}" ) . "\r\n";
 			$notify_message .= sprintf( __('Comment: %s' ), "\r\n" . $comment->comment_content ) . "\r\n\r\n";
 			$notify_message .= __( 'You can see all comments on this post here:' ) . "\r\n";
 			/* translators: 1: blog name, 2: post title */
@@ -1585,7 +1594,6 @@ function wp_notify_moderator($comment_id) {
 			$notify_message .= sprintf( __( 'Author: %1$s (IP: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 			$notify_message .= sprintf( __( 'E-mail: %s' ), $comment->comment_author_email ) . "\r\n";
 			$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
-			$notify_message .= sprintf( __( 'Whois: %s' ), "http://whois.arin.net/rest/ip/{$comment->comment_author_IP}" ) . "\r\n";
 			$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment->comment_content ) . "\r\n\r\n";
 			break;
 	}
@@ -1682,9 +1690,9 @@ if ( !function_exists('wp_new_user_notification') ) :
  * @since 2.0.0
  *
  * @param int    $user_id        User ID.
- * @param string $plaintext_pass Optional. The user's plaintext password. Default empty.
  */
-function wp_new_user_notification($user_id, $plaintext_pass = '') {
+function wp_new_user_notification($user_id) {
+	global $wpdb;
 	$user = get_userdata( $user_id );
 
 	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
@@ -1697,14 +1705,26 @@ function wp_new_user_notification($user_id, $plaintext_pass = '') {
 
 	@wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Registration'), $blogname), $message);
 
-	if ( empty($plaintext_pass) )
-		return;
+	// Generate something random for a password reset key.
+	$key = wp_generate_password( 20, false );
 
-	$message  = sprintf(__('Username: %s'), $user->user_login) . "\r\n";
-	$message .= sprintf(__('Password: %s'), $plaintext_pass) . "\r\n";
+	do_action( 'retrieve_password_key', $user->user_login, $key );
+
+	// Now insert the key, hashed, into the DB.
+	if ( empty( $wp_hasher ) ) {
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$wp_hasher = new PasswordHash( 8, true );
+	}
+	$hashed = time() . ':' . $wp_hasher->HashPassword( $key );
+	$wpdb->update( $wpdb->users, array( 'user_activation_key' => $hashed ), array( 'user_login' => $user->user_login ) );
+
+	$message = sprintf(__('Username: %s'), $user->user_login) . "\r\n\r\n";
+	$message .= __('To set your password, visit the following address:') . "\r\n\r\n";
+	$message .= '<' . network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login') . ">\r\n\r\n";
+
 	$message .= wp_login_url() . "\r\n";
 
-	wp_mail($user->user_email, sprintf(__('[%s] Your username and password'), $blogname), $message);
+	wp_mail($user->user_email, sprintf(__('[%s] Your username and password info'), $blogname), $message);
 
 }
 endif;
@@ -2229,6 +2249,8 @@ function get_avatar( $id_or_email, $size = 96, $default = '', $alt = '', $args =
 		return false;
 	}
 
+	$url2x = get_avatar_url( $id_or_email, array_merge( $args, array( 'size' => $args['size'] * 2 ) ) );
+
 	$args = get_avatar_data( $id_or_email, $args );
 
 	$url = $args['url'];
@@ -2236,8 +2258,6 @@ function get_avatar( $id_or_email, $size = 96, $default = '', $alt = '', $args =
 	if ( ! $url || is_wp_error( $url ) ) {
 		return false;
 	}
-
-	$url2x = add_query_arg( array( 's' => $args['size'] * 2 ), $args['url'] );
 
 	$class = array( 'avatar', 'avatar-' . (int) $args['size'], 'photo' );
 

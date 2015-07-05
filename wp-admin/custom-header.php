@@ -279,12 +279,13 @@ class Custom_Image_Header {
 			$header_thumbnail = $header['thumbnail_url'];
 			$header_url = $header['url'];
 			$header_desc = empty( $header['description'] ) ? '' : $header['description'];
+			$header_alt_text = empty( $header['alt_text'] ) ? $header_desc : $header['alt_text'];
 			echo '<div class="default-header">';
 			echo '<label><input name="default-header" type="radio" value="' . esc_attr( $header_key ) . '" ' . checked( $header_url, get_theme_mod( 'header_image' ), false ) . ' />';
 			$width = '';
 			if ( !empty( $header['attachment_id'] ) )
 				$width = ' width="230"';
-			echo '<img src="' . set_url_scheme( $header_thumbnail ) . '" alt="' . esc_attr( $header_desc ) .'" title="' . esc_attr( $header_desc ) . '"' . $width . ' /></label>';
+			echo '<img src="' . set_url_scheme( $header_thumbnail ) . '" alt="' . esc_attr( $header_alt_text ) .'" title="' . esc_attr( $header_desc ) . '"' . $width . ' /></label>';
 			echo '</div>';
 		}
 		echo '<div class="clear"></div></div>';
@@ -446,7 +447,7 @@ class Custom_Image_Header {
 ?>
 
 <div class="wrap">
-<h2><?php _e( 'Custom Header' ); ?></h2>
+<h1><?php _e( 'Custom Header' ); ?></h1>
 
 <?php if ( current_user_can( 'customize' ) ) { ?>
 <div class="notice notice-info hide-if-no-customize">
@@ -509,7 +510,7 @@ class Custom_Image_Header {
 </tr>
 <?php endif; ?>
 
-<?php if ( current_theme_supports( 'custom-header', 'uploads' ) ) : ?>
+<?php if ( current_user_can( 'upload_files' ) && current_theme_supports( 'custom-header', 'uploads' ) ) : ?>
 <tr>
 <th scope="row"><?php _e( 'Select Image' ); ?></th>
 <td>
@@ -754,7 +755,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 		?>
 
 <div class="wrap">
-<h2><?php _e( 'Crop Header Image' ); ?></h2>
+<h1><?php _e( 'Crop Header Image' ); ?></h1>
 
 <form method="post" action="<?php echo esc_url(add_query_arg('step', 3)); ?>">
 	<p class="hide-if-no-js"><?php _e('Choose the part of the image you want to use as your header.'); ?></p>
@@ -926,7 +927,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 * @since 3.4.0
 	 *
 	 * @param array $form_fields
-	 * @return $form_fields
+	 * @return array $form_fields
 	 */
 	public function attachment_fields_to_edit( $form_fields ) {
 		return $form_fields;
@@ -938,7 +939,7 @@ wp_nonce_field( 'custom-header-options', '_wpnonce-custom-header-options' ); ?>
 	 * @since 3.4.0
 	 *
 	 * @param array $tabs
-	 * @return $tabs
+	 * @return array $tabs
 	 */
 	public function filter_upload_tabs( $tabs ) {
 		return $tabs;

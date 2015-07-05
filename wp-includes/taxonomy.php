@@ -472,12 +472,14 @@ function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
  * - add_or_remove_items - This string isn't used on hierarchical taxonomies. Default is "Add or remove tags", used in the meta box when JavaScript is disabled.
  * - choose_from_most_used - This string isn't used on hierarchical taxonomies. Default is "Choose from the most used tags", used in the meta box.
  * - not_found - Default is "No tags found"/"No categories found", used in the meta box and taxonomy list table.
+ * - no_terms - Default is "No tags"/"No categories", used in the posts and media list tables.
  *
  * Above, the first default value is for non-hierarchical taxonomies (like tags) and the second one is for hierarchical taxonomies (like categories).
  *
  * @todo Better documentation for the labels array.
  *
  * @since 3.0.0
+ * @since 4.3.0 Added the `no_terms` label.
  *
  * @param object $tax Taxonomy object.
  * @return object object with all the labels as member variables.
@@ -508,6 +510,7 @@ function get_taxonomy_labels( $tax ) {
 		'add_or_remove_items' => array( __( 'Add or remove tags' ), null ),
 		'choose_from_most_used' => array( __( 'Choose from the most used tags' ), null ),
 		'not_found' => array( __( 'No tags found.' ), __( 'No categories found.' ) ),
+		'no_terms' => array( __( 'No tags' ), __( 'No categories' ) ),
 	);
 	$nohier_vs_hier_defaults['menu_name'] = $nohier_vs_hier_defaults['name'];
 
@@ -1046,7 +1049,7 @@ class WP_Tax_Query {
 			'join'  => array(),
 		);
 
-		$join = '';
+		$join = $where = '';
 
 		$this->clean_query( $clause );
 
@@ -2712,11 +2715,11 @@ function wp_get_object_terms($object_ids, $taxonomies, $args = array()) {
 
 	if ( in_array( $orderby, array( 'term_id', 'name', 'slug', 'term_group' ) ) ) {
 		$orderby = "t.$orderby";
-	} else if ( in_array( $orderby, array( 'count', 'parent', 'taxonomy', 'term_taxonomy_id' ) ) ) {
+	} elseif ( in_array( $orderby, array( 'count', 'parent', 'taxonomy', 'term_taxonomy_id' ) ) ) {
 		$orderby = "tt.$orderby";
-	} else if ( 'term_order' === $orderby ) {
+	} elseif ( 'term_order' === $orderby ) {
 		$orderby = 'tr.term_order';
-	} else if ( 'none' === $orderby ) {
+	} elseif ( 'none' === $orderby ) {
 		$orderby = '';
 		$order = '';
 	} else {
@@ -3324,33 +3327,35 @@ function wp_remove_object_terms( $object_id, $terms, $taxonomy ) {
  * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @param string $slug The string that will be tried for a unique slug.
- * @param object $term The term object that the $slug will belong too.
+ * @param object $term The term object that the `$slug` will belong to.
  * @return string Will return a true unique slug.
  */
 function wp_unique_term_slug( $slug, $term ) {
 	global $wpdb;
 
-	if ( ! term_exists( $slug ) )
-		return $slug;
+	$needs_suffix = true;
+	$original_slug = $slug;
 
 	// As of 4.1, duplicate slugs are allowed as long as they're in different taxonomies.
-	if ( get_option( 'db_version' ) >= 30133 && ! get_term_by( 'slug', $slug, $term->taxonomy ) ) {
-		return $slug;
+	if ( ! term_exists( $slug ) || get_option( 'db_version' ) >= 30133 && ! get_term_by( 'slug', $slug, $term->taxonomy ) ) {
+		$needs_suffix = false;
 	}
 
 	/*
 	 * If the taxonomy supports hierarchy and the term has a parent, make the slug unique
 	 * by incorporating parent slugs.
 	 */
-	if ( is_taxonomy_hierarchical($term->taxonomy) && !empty($term->parent) ) {
+	$parent_suffix = '';
+	if ( $needs_suffix && is_taxonomy_hierarchical( $term->taxonomy ) && ! empty( $term->parent ) ) {
 		$the_parent = $term->parent;
 		while ( ! empty($the_parent) ) {
 			$parent_term = get_term($the_parent, $term->taxonomy);
 			if ( is_wp_error($parent_term) || empty($parent_term) )
 				break;
-			$slug .= '-' . $parent_term->slug;
-			if ( ! term_exists( $slug ) )
-				return $slug;
+			$parent_suffix .= '-' . $parent_term->slug;
+			if ( ! term_exists( $slug . $parent_suffix ) ) {
+				break;
+			}
 
 			if ( empty($parent_term->parent) )
 				break;
@@ -3359,22 +3364,46 @@ function wp_unique_term_slug( $slug, $term ) {
 	}
 
 	// If we didn't get a unique slug, try appending a number to make it unique.
-	if ( ! empty( $term->term_id ) )
-		$query = $wpdb->prepare( "SELECT slug FROM $wpdb->terms WHERE slug = %s AND term_id != %d", $slug, $term->term_id );
-	else
-		$query = $wpdb->prepare( "SELECT slug FROM $wpdb->terms WHERE slug = %s", $slug );
+	/**
+	 * Filter whether the proposed unique term slug is bad.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param bool   $needs_suffix Whether the slug needs to be made unique with a suffix.
+	 * @param string $slug         The slug.
+	 * @param object $term         Term object.
+	 */
+	if ( apply_filters( 'wp_unique_term_slug_is_bad_slug', $needs_suffix, $slug, $term ) ) {
+		if ( $parent_suffix ) {
+			$slug .= $parent_suffix;
+		} else {
+			if ( ! empty( $term->term_id ) )
+				$query = $wpdb->prepare( "SELECT slug FROM $wpdb->terms WHERE slug = %s AND term_id != %d", $slug, $term->term_id );
+			else
+				$query = $wpdb->prepare( "SELECT slug FROM $wpdb->terms WHERE slug = %s", $slug );
 
-	if ( $wpdb->get_var( $query ) ) {
-		$num = 2;
-		do {
-			$alt_slug = $slug . "-$num";
-			$num++;
-			$slug_check = $wpdb->get_var( $wpdb->prepare( "SELECT slug FROM $wpdb->terms WHERE slug = %s", $alt_slug ) );
-		} while ( $slug_check );
-		$slug = $alt_slug;
+			if ( $wpdb->get_var( $query ) ) {
+				$num = 2;
+				do {
+					$alt_slug = $slug . "-$num";
+					$num++;
+					$slug_check = $wpdb->get_var( $wpdb->prepare( "SELECT slug FROM $wpdb->terms WHERE slug = %s", $alt_slug ) );
+				} while ( $slug_check );
+				$slug = $alt_slug;
+			}
+		}
 	}
 
-	return $slug;
+	/**
+	 * Filter the unique term slug.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string $slug          Unique term slug.
+	 * @param object $term          Term object.
+	 * @param string $original_slug Slug originally passed to the function for testing.
+	 */
+	return apply_filters( 'wp_unique_term_slug', $slug, $term, $original_slug );
 }
 
 /**
@@ -4188,17 +4217,34 @@ function _update_generic_term_count( $terms, $taxonomy ) {
  *
  * @ignore
  * @since 4.2.0
+ * @since 4.3.0 Introduced `$record` parameter. `$term_id` and `$term_taxonomy_id` can now accept objects.
  *
  * @global wpdb $wpdb
  *
- * @param int  $term_id          ID of the shared term.
- * @param int  $term_taxonomy_id ID of the term_taxonomy item to receive a new term.
+ * @param int|object $term_id          ID of the shared term, or the shared term object.
+ * @param int|object $term_taxonomy_id ID of the term_taxonomy item to receive a new term, or the term_taxonomy object
+ *                                     (corresponding to a row from the term_taxonomy table).
+ * @param bool       $record           Whether to record data about the split term in the options table. The recording
+ *                                     process has the potential to be resource-intensive, so during batch operations
+ *                                     it can be beneficial to skip inline recording and do it just once, after the
+ *                                     batch is processed. Only set this to `false` if you know what you are doing.
+ *                                     Default: true.
  * @return int|WP_Error When the current term does not need to be split (or cannot be split on the current
  *                      database schema), `$term_id` is returned. When the term is successfully split, the
  *                      new term_id is returned. A WP_Error is returned for miscellaneous errors.
  */
-function _split_shared_term( $term_id, $term_taxonomy_id ) {
+function _split_shared_term( $term_id, $term_taxonomy_id, $record = true ) {
 	global $wpdb;
+
+	if ( is_object( $term_id ) ) {
+		$shared_term = $term_id;
+		$term_id = intval( $shared_term->term_id );
+	}
+
+	if ( is_object( $term_taxonomy_id ) ) {
+		$term_taxonomy = $term_taxonomy_id;
+		$term_taxonomy_id = intval( $term_taxonomy->term_taxonomy_id );
+	}
 
 	// Don't try to split terms if database schema does not support shared slugs.
 	$current_db_version = get_option( 'db_version' );
@@ -4208,12 +4254,15 @@ function _split_shared_term( $term_id, $term_taxonomy_id ) {
 
 	// If there are no shared term_taxonomy rows, there's nothing to do here.
 	$shared_tt_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_taxonomy tt WHERE tt.term_id = %d AND tt.term_taxonomy_id != %d", $term_id, $term_taxonomy_id ) );
+
 	if ( ! $shared_tt_count ) {
 		return $term_id;
 	}
 
 	// Pull up data about the currently shared slug, which we'll use to populate the new one.
-	$shared_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.* FROM $wpdb->terms t WHERE t.term_id = %d", $term_id ) );
+	if ( empty( $shared_term ) ) {
+		$shared_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.* FROM $wpdb->terms t WHERE t.term_id = %d", $term_id ) );
+	}
 
 	$new_term_data = array(
 		'name' => $shared_term->name,
@@ -4234,9 +4283,11 @@ function _split_shared_term( $term_id, $term_taxonomy_id ) {
 	);
 
 	// Reassign child terms to the new parent.
-	$term_taxonomy = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $term_taxonomy_id ) );
-	$children_tt_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_taxonomy_id FROM $wpdb->term_taxonomy WHERE taxonomy = %s AND parent = %d", $term_taxonomy->taxonomy, $term_id ) );
+	if ( empty( $term_taxonomy ) ) {
+		$term_taxonomy = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $term_taxonomy_id ) );
+	}
 
+	$children_tt_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_taxonomy_id FROM $wpdb->term_taxonomy WHERE parent = %d AND taxonomy = %s", $term_id, $term_taxonomy->taxonomy ) );
 	if ( ! empty( $children_tt_ids ) ) {
 		foreach ( $children_tt_ids as $child_tt_id ) {
 			$wpdb->update( $wpdb->term_taxonomy,
@@ -4259,14 +4310,15 @@ function _split_shared_term( $term_id, $term_taxonomy_id ) {
 	}
 
 	// Keep a record of term_ids that have been split, keyed by old term_id. See {@see wp_get_split_term()}.
-	$split_term_data = get_option( '_split_terms', array() );
-	if ( ! isset( $split_term_data[ $term_id ] ) ) {
-		$split_term_data[ $term_id ] = array();
+	if ( $record ) {
+		$split_term_data = get_option( '_split_terms', array() );
+		if ( ! isset( $split_term_data[ $term_id ] ) ) {
+			$split_term_data[ $term_id ] = array();
+		}
+
+		$split_term_data[ $term_id ][ $term_taxonomy->taxonomy ] = $new_term_id;
+		update_option( '_split_terms', $split_term_data );
 	}
-
-	$split_term_data[ $term_id ][ $term_taxonomy->taxonomy ] = $new_term_id;
-
-	update_option( '_split_terms', $split_term_data );
 
 	/**
 	 * Fires after a previously shared taxonomy term is split into two separate terms.
@@ -4385,27 +4437,22 @@ function wp_get_split_term( $old_term_id, $taxonomy ) {
  * Generate a permalink for a taxonomy term archive.
  *
  * @since 2.5.0
- * @since 4.3.0 Introduced `$field` argument.
  *
  * @global WP_Rewrite $wp_rewrite
  *
  * @param object|int|string $term     The term object, ID, or slug whose link will be retrieved.
  * @param string            $taxonomy Optional. Taxonomy. Default empty.
- * @param string            $field    Optional. The term field that should be matched by the `$term` argument. Accepts
- *                                    any `$field` values accepted by `get_term_by()`: 'slug', 'name',
- *                                    'term_taxonomy_id', or 'id'. Default is 'slug', unless `$term` is an integer, in
- *                                    which case it's asssumed to be an ID.
  * @return string|WP_Error HTML link to taxonomy term archive on success, WP_Error if term does not exist.
  */
-function get_term_link( $term, $taxonomy = '', $field = null ) {
+function get_term_link( $term, $taxonomy = '' ) {
 	global $wp_rewrite;
 
 	if ( !is_object($term) ) {
-		if ( is_null( $field ) ) {
-			$field = is_int( $term ) ? 'id' : 'slug';
+		if ( is_int( $term ) ) {
+			$term = get_term( $term, $taxonomy );
+		} else {
+			$term = get_term_by( 'slug', $term, $taxonomy );
 		}
-
-		$term = get_term_by( $field, $term, $taxonomy );
 	}
 
 	if ( !is_object($term) )

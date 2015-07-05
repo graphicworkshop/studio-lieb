@@ -631,6 +631,23 @@ class WP_User {
 	}
 
 	/**
+	 * Make private/protected methods readable for backwards compatibility.
+	 *
+	 * @since 4.3.0
+	 * @access public
+	 *
+	 * @param callable $name      Method to call.
+	 * @param array    $arguments Arguments to pass when calling.
+	 * @return mixed|false Return value of the callback, false otherwise.
+	 */
+	public function __call( $name, $arguments ) {
+		if ( '_init_caps' === $name ) {
+			return call_user_func_array( array( $this, $name ), $arguments );
+		}
+		return false;
+	}
+
+	/**
 	 * Magic method for checking the existence of a certain custom field
 	 *
 	 * @since 3.3.0
@@ -761,7 +778,7 @@ class WP_User {
 	 *
 	 * @param string $cap_key Optional capability key
 	 */
-	function _init_caps( $cap_key = '' ) {
+	protected function _init_caps( $cap_key = '' ) {
 		global $wpdb;
 
 		if ( empty($cap_key) )
@@ -823,6 +840,16 @@ class WP_User {
 		update_user_meta( $this->ID, $this->cap_key, $this->caps );
 		$this->get_role_caps();
 		$this->update_user_level_from_caps();
+
+		/**
+		 * Fires immediately after the user has been given a new role.
+		 *
+		 * @since 4.3.0
+		 *
+		 * @param int    $user_id The user ID.
+		 * @param string $role    The new role.
+		 */
+		do_action( 'add_user_role', $this->ID, $role );
 	}
 
 	/**
@@ -840,6 +867,16 @@ class WP_User {
 		update_user_meta( $this->ID, $this->cap_key, $this->caps );
 		$this->get_role_caps();
 		$this->update_user_level_from_caps();
+
+		/**
+		 * Fires immediately after a role as been removed from a user.
+		 *
+		 * @since 4.3.0
+		 *
+		 * @param int    $user_id The user ID.
+		 * @param string $role    The removed role.
+		 */
+		do_action( 'remove_user_role', $this->ID, $role );
 	}
 
 	/**
@@ -1339,7 +1376,7 @@ function map_meta_cap( $cap, $user_id ) {
 	case 'create_users':
 		if ( !is_multisite() )
 			$caps[] = $cap;
-		elseif ( is_super_admin() || get_site_option( 'add_new_users' ) )
+		elseif ( is_super_admin( $user_id ) || get_site_option( 'add_new_users' ) )
 			$caps[] = $cap;
 		else
 			$caps[] = 'do_not_allow';

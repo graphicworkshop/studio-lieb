@@ -722,6 +722,58 @@ function get_bloginfo( $show = '', $filter = 'raw' ) {
 }
 
 /**
+ * Returns the Site Icon URL.
+ *
+ * @param  null|int $blog_id Id of the blog to get the site icon for.
+ * @param  int      $size    Size of the site icon.
+ * @param  string   $url     Fallback url if no site icon is found.
+ * @return string            Site Icon URL.
+ */
+function get_site_icon_url( $blog_id = null, $size = 512, $url = '' ) {
+	if ( function_exists( 'get_blog_option' ) ) {
+		if ( ! is_int( $blog_id ) ) {
+			$blog_id = get_current_blog_id();
+		}
+		$site_icon_id = get_blog_option( $blog_id, 'site_icon' );
+	} else {
+		$site_icon_id = get_option( 'site_icon' );
+	}
+
+	if ( $site_icon_id  ) {
+		if ( $size >= 512 ) {
+			$size_data = 'full';
+		} else {
+			$size_data = array( $size, $size );
+		}
+		$url_data = wp_get_attachment_image_src( $site_icon_id, $size_data );
+		$url = $url_data[0];
+	}
+
+	return $url;
+}
+
+/**
+ * Displays the Site Icon URL.
+ *
+ * @param null|int $blog_id Id of the blog to get the site icon for.
+ * @param int      $size    Size of the site icon.
+ * @param string   $url     Fallback url if no site icon is found.
+ */
+function site_icon_url( $blog_id = null, $size = 512, $url = '' ) {
+	echo esc_url( get_site_icon_url( $blog_id, $size, $url ) );
+}
+
+/**
+ * Whether the site has a Site Icon.
+ *
+ * @param int|null $blog_id Optional. Blog ID. Default: Current blog.
+ * @return bool
+ */
+function has_site_icon( $blog_id = null ) {
+	return !! get_site_icon_url( $blog_id, 512 );
+}
+
+/**
  * Display title tag with contents.
  *
  * @ignore
@@ -1645,7 +1697,7 @@ function get_calendar($initial = true, $echo = true) {
 	}
 
 	foreach ( $myweek as $wd ) {
-		$day_name = (true == $initial) ? $wp_locale->get_weekday_initial($wd) : $wp_locale->get_weekday_abbrev($wd);
+		$day_name = $initial ? $wp_locale->get_weekday_initial($wd) : $wp_locale->get_weekday_abbrev($wd);
 		$wd = esc_attr($wd);
 		$calendar_output .= "\n\t\t<th scope=\"col\" title=\"$wd\">$day_name</th>";
 	}
@@ -2386,6 +2438,39 @@ function wp_no_robots() {
 }
 
 /**
+ * Display site icon meta tags.
+ *
+ * @since 4.3.0
+ *
+ * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/links.html#rel-icon HTML5 specification link icon.
+ */
+function wp_site_icon() {
+	if ( ! has_site_icon() ) {
+		return;
+	}
+
+	$meta_tags = array(
+		sprintf( '<link rel="icon" href="%s" sizes="32x32" />', esc_url( get_site_icon_url( null, 32 ) ) ),
+		sprintf( '<link rel="apple-touch-icon-precomposed" href="%s">', esc_url( get_site_icon_url( null, 180 ) ) ),
+		sprintf( '<meta name="msapplication-TileImage" content="%s">', esc_url( get_site_icon_url( null, 270 ) ) ),
+	);
+
+	/**
+	 * Filters the site icon meta tags, so Plugins can add their own.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param array $meta_tags Site Icon meta elements.
+	 */
+	$meta_tags = apply_filters( 'site_icon_meta_tags', $meta_tags );
+	$meta_tags = array_filter( $meta_tags );
+
+	foreach ( $meta_tags as $meta_tag ) {
+		echo "$meta_tag\n";
+	}
+}
+
+/**
  * Whether the user should have a WYSIWIG editor.
  *
  * Checks that the user requires a WYSIWIG editor and that the editor is
@@ -2527,16 +2612,16 @@ function the_search_query() {
 }
 
 /**
- * Display the language attributes for the html tag.
+ * Get the language attributes for the html tag.
  *
  * Builds up a set of html attributes containing the text direction and language
  * information for the page.
  *
- * @since 2.1.0
+ * @since 4.3.0
  *
- * @param string $doctype The type of html document (xhtml|html).
+ * @param string $doctype Optional. The type of html document (xhtml|html). Default html.
  */
-function language_attributes($doctype = 'html') {
+function get_language_attributes( $doctype = 'html' ) {
 	$attributes = array();
 
 	if ( function_exists( 'is_rtl' ) && is_rtl() )
@@ -2556,10 +2641,27 @@ function language_attributes($doctype = 'html') {
 	 * Filter the language attributes for display in the html tag.
 	 *
 	 * @since 2.5.0
+	 * @since 4.3.0 Added the `$doctype` parameter.
 	 *
 	 * @param string $output A space-separated list of language attributes.
+	 * @param string $doctype The type of html document (xhtml|html).
 	 */
-	echo apply_filters( 'language_attributes', $output );
+	return apply_filters( 'language_attributes', $output, $doctype );
+}
+
+/**
+ * Display the language attributes for the html tag.
+ *
+ * Builds up a set of html attributes containing the text direction and language
+ * information for the page.
+ *
+ * @since 2.1.0
+ * @since 4.3.0 Converted into a wrapper for get_language_attributes().
+ *
+ * @param string $doctype Optional. The type of html document (xhtml|html). Default html.
+ */
+function language_attributes( $doctype = 'html' ) {
+	echo get_language_attributes( $doctype );
 }
 
 /**
@@ -2824,7 +2926,7 @@ function wp_admin_css_color( $key, $name, $url, $colors = array(), $icons = arra
  */
 function register_admin_color_schemes() {
 	$suffix = is_rtl() ? '-rtl' : '';
-	$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+	$suffix .= SCRIPT_DEBUG ? '' : '.min';
 
 	wp_admin_css_color( 'fresh', _x( 'Default', 'admin color scheme' ),
 		false,

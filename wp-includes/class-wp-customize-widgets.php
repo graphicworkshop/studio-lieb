@@ -747,7 +747,7 @@ final class WP_Customize_Widgets {
 		if ( preg_match( $this->setting_id_patterns['sidebar_widgets'], $id, $matches ) ) {
 			$args['sanitize_callback'] = array( $this, 'sanitize_sidebar_widgets' );
 			$args['sanitize_js_callback'] = array( $this, 'sanitize_sidebar_widgets_js_instance' );
-		} else if ( preg_match( $this->setting_id_patterns['widget_instance'], $id, $matches ) ) {
+		} elseif ( preg_match( $this->setting_id_patterns['widget_instance'], $id, $matches ) ) {
 			$args['sanitize_callback'] = array( $this, 'sanitize_widget_instance' );
 			$args['sanitize_js_callback'] = array( $this, 'sanitize_widget_js_instance' );
 		}
@@ -1431,7 +1431,7 @@ final class WP_Customize_Widgets {
 	 * @access protected
 	 *
 	 * @param string $option_name Option name.
-	 * @return boolean Whether the option capture is ignored.
+	 * @return bool Whether the option capture is ignored.
 	 */
 	protected function is_option_capture_ignored( $option_name ) {
 		return ( 0 === strpos( $option_name, '_transient_' ) );

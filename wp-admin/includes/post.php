@@ -610,8 +610,8 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 		$post->post_status = 'draft';
 		$post->to_ping = '';
 		$post->pinged = '';
-		$post->comment_status = get_option( 'default_comment_status' );
-		$post->ping_status = get_option( 'default_ping_status' );
+		$post->comment_status = get_default_comment_status( $post_type );
+		$post->ping_status = get_default_comment_status( $post_type, 'pingback' );
 		$post->post_pingback = get_option( 'default_pingback_flag' );
 		$post->post_category = get_option( 'default_category' );
 		$post->page_template = 'default';
@@ -1318,7 +1318,7 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 	}
 
 	if ( isset( $view_post ) ) {
-		if( 'draft' == $post->post_status ) {
+		if ( 'draft' == $post->post_status ) {
 			$preview_link = set_url_scheme( get_permalink( $post->ID ) );
 			/** This filter is documented in wp-admin/includes/meta-boxes.php */
 			$preview_link = apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', $preview_link ), $post );

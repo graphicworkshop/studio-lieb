@@ -497,6 +497,8 @@ class WP_List_Table {
 		}
 		$out .= '</div>';
 
+		$out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( 'Show more details' ) . '</span></button>';
+
 		return $out;
 	}
 
@@ -634,7 +636,7 @@ class WP_List_Table {
 	public function get_pagenum() {
 		$pagenum = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 0;
 
-		if( isset( $this->_pagination_args['total_pages'] ) && $pagenum > $this->_pagination_args['total_pages'] )
+		if ( isset( $this->_pagination_args['total_pages'] ) && $pagenum > $this->_pagination_args['total_pages'] )
 			$pagenum = $this->_pagination_args['total_pages'];
 
 		return max( 1, $pagenum );
@@ -704,30 +706,46 @@ class WP_List_Table {
 		$total_pages_before = '<span class="paging-input">';
 		$total_pages_after  = '</span>';
 
-		$disable_first = $disable_last = '';
-		if ( $current == 1 ) {
-			$disable_first = ' disabled';
-		}
-		if ( $current == $total_pages ) {
-			$disable_last = ' disabled';
-		}
-		$page_links[] = sprintf( "<a class='%s' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
-			'first-page' . $disable_first,
-			esc_url( remove_query_arg( 'paged', $current_url ) ),
-			__( 'First page' ),
-			'&laquo;'
-		);
+		$disable_first = $disable_last = $disable_prev = $disable_next = false;
 
-		$page_links[] = sprintf( "<a class='%s' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
-			'prev-page' . $disable_first,
-			esc_url( add_query_arg( 'paged', max( 1, $current-1 ), $current_url ) ),
-			__( 'Previous page' ),
-			'&lsaquo;'
-		);
+ 		if ( $current == 1 ) {
+			$disable_first = true;
+			$disable_prev = true;
+ 		}
+		if ( $current == 2 ) {
+			$disable_first = true;
+		}
+ 		if ( $current == $total_pages ) {
+			$disable_last = true;
+			$disable_next = true;
+ 		}
+		if ( $current == $total_pages - 1 ) {
+			$disable_last = true;
+		}
+
+		if ( $disable_first ) {
+			$page_links[] = '<span class="tablenav-pages-navspan" aria-hidden="true">&laquo;</span>';
+		} else {
+			$page_links[] = sprintf( "<a class='first-page' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
+				esc_url( remove_query_arg( 'paged', $current_url ) ),
+				__( 'First page' ),
+				'&laquo;'
+			);
+		}
+
+		if ( $disable_prev ) {
+			$page_links[] = '<span class="tablenav-pages-navspan" aria-hidden="true">&lsaquo;</span>';
+		} else {
+			$page_links[] = sprintf( "<a class='prev-page' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
+				esc_url( add_query_arg( 'paged', max( 1, $current-1 ), $current_url ) ),
+				__( 'Previous page' ),
+				'&lsaquo;'
+			);
+		}
 
 		if ( 'bottom' == $which ) {
 			$html_current_page  = $current;
-			$total_pages_before = '<span id="table-paging" class="paging-input">';
+			$total_pages_before = '<span class="screen-reader-text">' . __( 'Current Page' ) . '</span><span id="table-paging" class="paging-input">';
 		} else {
 			$html_current_page = sprintf( "%s<input class='current-page' id='current-page-selector' type='text' name='paged' value='%s' size='%d' aria-describedby='table-paging' />",
 				'<label for="current-page-selector" class="screen-reader-text">' . __( 'Current Page' ) . '</label>',
@@ -738,19 +756,25 @@ class WP_List_Table {
 		$html_total_pages = sprintf( "<span class='total-pages'>%s</span>", number_format_i18n( $total_pages ) );
 		$page_links[] = $total_pages_before . sprintf( _x( '%1$s of %2$s', 'paging' ), $html_current_page, $html_total_pages ) . $total_pages_after;
 
-		$page_links[] = sprintf( "<a class='%s' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
-			'next-page' . $disable_last,
-			esc_url( add_query_arg( 'paged', min( $total_pages, $current+1 ), $current_url ) ),
-			__( 'Next page' ),
-			'&rsaquo;'
-		);
+		if ( $disable_next ) {
+			$page_links[] = '<span class="tablenav-pages-navspan" aria-hidden="true">&rsaquo;</span>';
+		} else {
+			$page_links[] = sprintf( "<a class='next-page' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
+				esc_url( add_query_arg( 'paged', min( $total_pages, $current+1 ), $current_url ) ),
+				__( 'Next page' ),
+				'&rsaquo;'
+			);
+		}
 
-		$page_links[] = sprintf( "<a class='%s' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
-			'last-page' . $disable_last,
-			esc_url( add_query_arg( 'paged', $total_pages, $current_url ) ),
-			__( 'Last page' ),
-			'&raquo;'
-		);
+		if ( $disable_last ) {
+			$page_links[] = '<span class="tablenav-pages-navspan" aria-hidden="true">&raquo;</span>';
+		} else {
+			$page_links[] = sprintf( "<a class='last-page' href='%s'><span class='screen-reader-text'>%s</span><span aria-hidden='true'>%s</span></a>",
+				esc_url( add_query_arg( 'paged', $total_pages, $current_url ) ),
+				__( 'Last page' ),
+				'&raquo;'
+			);
+		}
 
 		$pagination_links_class = 'pagination-links';
 		if ( ! empty( $infinite_scroll ) ) {
@@ -921,7 +945,7 @@ class WP_List_Table {
 	 * @param bool $with_id Whether to set the id attribute or not
 	 */
 	public function print_column_headers( $with_id = true ) {
-		list( $columns, $hidden, $sortable ) = $this->get_column_info();
+		list( $columns, $hidden, $sortable, $primary ) = $this->get_column_info();
 
 		$current_url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		$current_url = remove_query_arg( 'paged', $current_url );
@@ -955,6 +979,10 @@ class WP_List_Table {
 			elseif ( in_array( $column_key, array( 'posts', 'comments', 'links' ) ) )
 				$class[] = 'num';
 
+			if ( $column_key === $primary ) {
+				$class[] = 'column-primary';
+			}
+
 			if ( isset( $sortable[$column_key] ) ) {
 				list( $orderby, $desc_first ) = $sortable[$column_key];
 
@@ -971,12 +999,14 @@ class WP_List_Table {
 				$column_display_name = '<a href="' . esc_url( add_query_arg( compact( 'orderby', 'order' ), $current_url ) ) . '"><span>' . $column_display_name . '</span><span class="sorting-indicator"></span></a>';
 			}
 
+			$tag = ( 'cb' === $column_key ) ? 'td' : 'th';
+			$scope = ( 'th' === $tag ) ? 'scope="col"' : '';
 			$id = $with_id ? "id='$column_key'" : '';
 
 			if ( !empty( $class ) )
 				$class = "class='" . join( ' ', $class ) . "'";
 
-			echo "<th scope='col' $id $class>$column_display_name</th>";
+			echo "<$tag $scope $id $class>$column_display_name</$tag>";
 		}
 	}
 
@@ -1139,7 +1169,11 @@ class WP_List_Table {
 				$classes .= ' hidden';
 			}
 
-			$attributes = "class='$classes'";
+			// Comments column uses HTML in the display name with screen reader text.
+			// Instead of using esc_attr(), we strip tags to get closer to a user-friendly string.
+			$data = 'data-colname="' . wp_strip_all_tags( $column_display_name ) . '"';
+
+			$attributes = "class='$classes' $data";
 
 			if ( 'cb' == $column_name ) {
 				echo '<th scope="row" class="check-column">';

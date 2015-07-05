@@ -116,7 +116,7 @@ function translate( $text, $domain = 'default' ) {
  */
 function before_last_bar( $string ) {
 	$last_bar = strrpos( $string, '|' );
-	if ( false == $last_bar )
+	if ( false === $last_bar )
 		return $string;
 	else
 		return substr( $string, 0, $last_bar );
@@ -820,7 +820,7 @@ function wp_get_installed_translations( $type ) {
 		if ( substr( $file, -3 ) !== '.po' ) {
 			continue;
 		}
-		if ( ! preg_match( '/(?:(.+)-)?([A-Za-z_]{2,6}).po/', $file, $match ) ) {
+		if ( ! preg_match( '/(?:(.+)-)?([a-z]{2,3}(?:_[A-Z]{2})?(?:_[a-z0-9]+)?).po/', $file, $match ) ) {
 			continue;
 		}
 		if ( ! in_array( substr( $file, 0, -3 ) . '.mo', $files ) )  {

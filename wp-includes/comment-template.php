@@ -1202,7 +1202,6 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 	$wp_query->comments = apply_filters( 'comments_array', $comments, $post->ID );
 	$comments = &$wp_query->comments;
 	$wp_query->comment_count = count($wp_query->comments);
-	update_comment_cache($wp_query->comments);
 
 	if ( $separate_comments ) {
 		$wp_query->comments_by_type = separate_comments($comments);
@@ -1438,8 +1437,8 @@ function get_comment_reply_link( $args = array(), $comment = null, $post = null 
 			$args['add_below'], $comment->comment_ID, $args['respond_id'], $post->ID
 		);
 
-		$link = sprintf( "<a class='comment-reply-link' href='%s' onclick='%s' aria-label='%s'>%s</a>",
-			esc_url( add_query_arg( 'replytocom', $comment->comment_ID ) ) . "#" . $args['respond_id'],
+		$link = sprintf( "<a rel='nofollow' class='comment-reply-link' href='%s' onclick='%s' aria-label='%s'>%s</a>",
+			esc_url( add_query_arg( 'replytocom', $comment->comment_ID, get_permalink( $post->ID ) ) ) . "#" . $args['respond_id'],
 			$onclick,
 			esc_attr( sprintf( $args['reply_to_text'], $comment->comment_author ) ),
 			$args['reply_text']
@@ -2196,7 +2195,6 @@ function wp_list_comments( $args = array(), $comments = null ) {
  *     @type string $comment_notes_before HTML element for a message displayed before the comment form.
  *                                        Default 'Your email address will not be published.'.
  *     @type string $comment_notes_after  HTML element for a message displayed after the comment form.
- *                                        Default 'You may use these HTML tags and attributes ...'.
  *     @type string $id_form              The comment form element id attribute. Default 'commentform'.
  *     @type string $id_submit            The comment submit element id attribute. Default 'submit'.
  *     @type string $class_submit         The comment submit element class attribute. Default 'submit'.
@@ -2252,13 +2250,13 @@ function comment_form( $args = array(), $post_id = null ) {
 	$fields = apply_filters( 'comment_form_default_fields', $fields );
 	$defaults = array(
 		'fields'               => $fields,
-		'comment_field'        => '<p class="comment-form-comment"><label for="comment">' . _x( 'Comment', 'noun' ) . '</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-describedby="form-allowed-tags" aria-required="true" required="required"></textarea></p>',
+		'comment_field'        => '<p class="comment-form-comment"><label for="comment">' . _x( 'Comment', 'noun' ) . '</label> <textarea id="comment" name="comment" cols="45" rows="8"  aria-required="true" required="required"></textarea></p>',
 		/** This filter is documented in wp-includes/link-template.php */
 		'must_log_in'          => '<p class="must-log-in">' . sprintf( __( 'You must be <a href="%s">logged in</a> to post a comment.' ), wp_login_url( apply_filters( 'the_permalink', get_permalink( $post_id ) ) ) ) . '</p>',
 		/** This filter is documented in wp-includes/link-template.php */
 		'logged_in_as'         => '<p class="logged-in-as">' . sprintf( __( 'Logged in as <a href="%1$s">%2$s</a>. <a href="%3$s" title="Log out of this account">Log out?</a>' ), get_edit_user_link(), $user_identity, wp_logout_url( apply_filters( 'the_permalink', get_permalink( $post_id ) ) ) ) . '</p>',
 		'comment_notes_before' => '<p class="comment-notes"><span id="email-notes">' . __( 'Your email address will not be published.' ) . '</span>'. ( $req ? $required_text : '' ) . '</p>',
-		'comment_notes_after'  => '<p class="form-allowed-tags" id="form-allowed-tags">' . sprintf( __( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes: %s' ), ' <code>' . allowed_tags() . '</code>' ) . '</p>',
+		'comment_notes_after'  => '',
 		'id_form'              => 'commentform',
 		'id_submit'            => 'submit',
 		'class_submit'         => 'submit',

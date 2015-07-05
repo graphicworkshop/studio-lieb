@@ -1159,7 +1159,7 @@ function get_random_header_image() {
  * @since 3.2.0
  *
  * @param string $type The random pool to use. any|default|uploaded
- * @return boolean
+ * @return bool
  */
 function is_random_header_image( $type = 'any' ) {
 	$header_image_mod = get_theme_mod( 'header_image', get_theme_support( 'custom-header', 'default-image' ) );
@@ -1209,10 +1209,13 @@ function get_uploaded_header_images() {
 		$url = esc_url_raw( wp_get_attachment_url( $header->ID ) );
 		$header_data = wp_get_attachment_metadata( $header->ID );
 		$header_index = basename($url);
+
 		$header_images[$header_index] = array();
-		$header_images[$header_index]['attachment_id'] =  $header->ID;
+		$header_images[$header_index]['attachment_id'] = $header->ID;
 		$header_images[$header_index]['url'] =  $url;
-		$header_images[$header_index]['thumbnail_url'] =  $url;
+		$header_images[$header_index]['thumbnail_url'] = $url;
+		$header_images[$header_index]['alt_text'] = get_post_meta( $header->ID, '_wp_attachment_image_alt', true );
+
 		if ( isset( $header_data['width'] ) )
 			$header_images[$header_index]['width'] = $header_data['width'];
 		if ( isset( $header_data['height'] ) )
@@ -1499,7 +1502,14 @@ function get_editor_stylesheets() {
 			}
 		}
 	}
-	return $stylesheets;
+	/**
+	 * Filter the array of stylesheets applied to the editor.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param array $stylesheets Array of stylesheets to be applied to the editor.
+	 */
+	return apply_filters( 'editor_stylesheets', $stylesheets );
 }
 
 /**
@@ -1992,9 +2002,8 @@ function _wp_customize_include() {
 	) )
 		return;
 
-	require( ABSPATH . WPINC . '/class-wp-customize-manager.php' );
-	// Init Customize class
-	$GLOBALS['wp_customize'] = new WP_Customize_Manager;
+	require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
+	$GLOBALS['wp_customize'] = new WP_Customize_Manager();
 }
 
 /**

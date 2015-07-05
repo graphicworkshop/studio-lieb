@@ -230,6 +230,11 @@ function wp_nav_menu( $args = array() ) {
 	'echo' => true, 'fallback_cb' => 'wp_page_menu', 'before' => '', 'after' => '', 'link_before' => '', 'link_after' => '', 'items_wrap' => '<ul id="%1$s" class="%2$s">%3$s</ul>',
 	'depth' => 0, 'walker' => '', 'theme_location' => '' );
 
+	// Prevent a fallback_cb in Customizer Preview to assist with has_nav_menu() and partial refresh.
+	if ( is_customize_preview() ) {
+		$defaults['fallback_cb'] = '';
+	}
+
 	$args = wp_parse_args( $args, $defaults );
 	/**
 	 * Filter the arguments used to display a navigation menu.
@@ -286,6 +291,10 @@ function wp_nav_menu( $args = array() ) {
 		}
 	}
 
+	if ( empty( $args->menu ) ) {
+		$args->menu = $menu;
+	}
+
 	// If the menu exists, get its items.
 	if ( $menu && ! is_wp_error($menu) && !isset($menu_items) )
 		$menu_items = wp_get_nav_menu_items( $menu->term_id, array( 'update_post_term_cache' => false ) );
@@ -299,7 +308,7 @@ function wp_nav_menu( $args = array() ) {
 	 *  - Otherwise, bail.
 	 */
 	if ( ( !$menu || is_wp_error($menu) || ( isset($menu_items) && empty($menu_items) && !$args->theme_location ) )
-		&& $args->fallback_cb && is_callable( $args->fallback_cb ) )
+		&& isset( $args->fallback_cb ) && $args->fallback_cb && is_callable( $args->fallback_cb ) )
 			return call_user_func( $args->fallback_cb, (array) $args );
 
 	if ( ! $menu || is_wp_error( $menu ) )

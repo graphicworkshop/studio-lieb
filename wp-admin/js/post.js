@@ -1,5 +1,5 @@
 /* global postL10n, ajaxurl, wpAjax, setPostThumbnailL10n, postboxes, pagenow, tinymce, alert, deleteUserSetting */
-/* global theList:true, theExtraList:true, getUserSetting, setUserSetting */
+/* global theList:true, theExtraList:true, getUserSetting, setUserSetting, commentReply */
 
 var commentsBox, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThumbnail, wptitlehint, makeSlugeditClickable, editPermalink;
 // Back-compat: prevent fatal errors
@@ -203,7 +203,6 @@ $(document).on( 'heartbeat-send.refresh-lock', function( e, data ) {
 jQuery(document).ready( function($) {
 	var stamp, visibility, $submitButtons, updateVisibility, updateText,
 		sticky = '',
-		last = 0,
 		$textarea = $('#content'),
 		$document = $(document),
 		$editSlugWrap = $('#edit-slug-box'),
@@ -265,6 +264,14 @@ jQuery(document).ready( function($) {
 			// Stop autosave
 			if ( wp.autosave ) {
 				wp.autosave.server.suspend();
+			}
+
+			if ( typeof commentReply !== 'undefined' ) {
+				/*
+				 * Close the comment edit/reply form if open to stop the form
+				 * action from interfering with the post's form action.
+				 */
+				commentReply.close();
 			}
 
 			releaseLock = false;
@@ -788,24 +795,6 @@ jQuery(document).ready( function($) {
 		});
 	}
 
-	// word count
-	if ( typeof(wpWordCount) != 'undefined' ) {
-		$document.triggerHandler('wpcountwords', [ $textarea.val() ]);
-
-		$textarea.keyup( function(e) {
-			var k = e.keyCode || e.charCode;
-
-			if ( k == last )
-				return true;
-
-			if ( 13 == k || 8 == last || 46 == last )
-				$document.triggerHandler('wpcountwords', [ $textarea.val() ]);
-
-			last = k;
-			return true;
-		});
-	}
-
 	wptitlehint = function(id) {
 		id = id || 'title';
 
@@ -935,3 +924,44 @@ jQuery(document).ready( function($) {
 		}
 	});
 });
+
+( function( $, counter ) {
+	$( function() {
+		var $content = $( '#content' ),
+			$count = $( '#wp-word-count' ).find( '.word-count' ),
+			prevCount = 0,
+			contentEditor;
+
+		function update() {
+			var text, count;
+
+			if ( ! contentEditor || contentEditor.isHidden() ) {
+				text = $content.val();
+			} else {
+				text = contentEditor.getContent( { format: 'raw' } );
+			}
+
+			count = counter.count( text );
+
+			if ( count !== prevCount ) {
+				$count.text( count );
+			}
+
+			prevCount = count;
+		}
+
+		$( document ).on( 'tinymce-editor-init', function( event, editor ) {
+			if ( editor.id !== 'content' ) {
+				return;
+			}
+
+			contentEditor = editor;
+
+			editor.on( 'nodechange keyup', _.debounce( update, 1000 ) );
+		} );
+
+		$content.on( 'input keyup', _.debounce( update, 1000 ) );
+
+		update();
+	} );
+} )( jQuery, new wp.utils.WordCounter() );

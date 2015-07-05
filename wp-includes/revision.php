@@ -150,7 +150,7 @@ function wp_save_post_revision( $post_id ) {
 			$post_has_changed = (bool) apply_filters( 'wp_save_post_revision_post_has_changed', $post_has_changed, $last_revision, $post );
 
 			//don't save revision if post unchanged
-			if( ! $post_has_changed ) {
+			if ( ! $post_has_changed ) {
 				return;
 			}
 		}
@@ -522,7 +522,7 @@ function _show_post_preview() {
 	if ( isset($_GET['preview_id']) && isset($_GET['preview_nonce']) ) {
 		$id = (int) $_GET['preview_id'];
 
-		if ( false == wp_verify_nonce( $_GET['preview_nonce'], 'post_preview_' . $id ) )
+		if ( false === wp_verify_nonce( $_GET['preview_nonce'], 'post_preview_' . $id ) )
 			wp_die( __('You do not have permission to preview drafts.') );
 
 		add_filter('the_preview', '_set_preview');

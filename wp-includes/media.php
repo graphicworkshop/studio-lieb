@@ -693,23 +693,35 @@ function get_intermediate_image_sizes() {
  * @return false|array Returns an array (url, width, height), or false, if no image is available.
  */
 function wp_get_attachment_image_src( $attachment_id, $size = 'thumbnail', $icon = false ) {
-
 	// get a thumbnail or intermediate image if there is one
-	if ( $image = image_downsize($attachment_id, $size) )
-		return $image;
+	$image = image_downsize( $attachment_id, $size );
+	if ( ! $image ) {
+		$src = false;
 
-	$src = false;
+		if ( $icon && $src = wp_mime_type_icon( $attachment_id ) ) {
+			/** This filter is documented in wp-includes/post.php */
+			$icon_dir = apply_filters( 'icon_dir', ABSPATH . WPINC . '/images/media' );
 
-	if ( $icon && $src = wp_mime_type_icon($attachment_id) ) {
-		/** This filter is documented in wp-includes/post.php */
-		$icon_dir = apply_filters( 'icon_dir', ABSPATH . WPINC . '/images/media' );
+			$src_file = $icon_dir . '/' . wp_basename( $src );
+			@list( $width, $height ) = getimagesize( $src_file );
+		}
 
-		$src_file = $icon_dir . '/' . wp_basename($src);
-		@list($width, $height) = getimagesize($src_file);
+		if ( $src && $width && $height ) {
+			$image = array( $src, $width, $height );
+		}
 	}
-	if ( $src && $width && $height )
-		return array( $src, $width, $height );
-	return false;
+	/**
+	 * Filter the image src result.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param array|false  $image         Either array with src, width & height, icon src, or false.
+	 * @param int          $attachment_id Image attachment ID.
+	 * @param string|array $size          Registered image size to retrieve the source for or a flat
+	 *                                    array of height and width dimensions. Default 'thumbnail'.
+	 * @param bool         $icon          Whether the image should be treated as an icon. Default false.
+	 */
+	return apply_filters( 'wp_get_attachment_image_src', $image, $attachment_id, $size, $icon );
 }
 
 /**
@@ -1538,7 +1550,6 @@ function wp_get_attachment_id3_keys( $attachment, $context = 'display' ) {
  *     @type string $autoplay The 'autoplay' attribute for the `<audio>` element. Default empty.
  *     @type string $preload  The 'preload' attribute for the `<audio>` element. Default empty.
  *     @type string $class    The 'class' attribute for the `<audio>` element. Default 'wp-audio-shortcode'.
- *     @type string $id       The 'id' attribute for the `<audio>` element. Default 'audio-{$post_id}-{$instance}'.
  *     @type string $style    The 'style' attribute for the `<audio>` element. Default 'width: 100%'.
  * }
  * @param string $content Shortcode content.
@@ -1739,8 +1750,6 @@ function wp_get_video_extensions() {
  *                            Default 'metadata'.
  *     @type string $class    The 'class' attribute for the `<video>` element.
  *                            Default 'wp-video-shortcode'.
- *     @type string $id       The 'id' attribute for the `<video>` element.
- *                            Default 'video-{$post_id}-{$instance}'.
  * }
  * @param string $content Shortcode content.
  * @return string|void HTML content to display video.
@@ -2312,7 +2321,7 @@ function wp_maybe_load_embeds() {
 		return;
 	}
 
-	wp_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/embed/([^/]+)#i', 'wp_embed_handler_youtube' );
+	wp_embed_register_handler( 'youtube_embed_url', '#https?://(www.)?youtube\.com/(?:v|embed)/([^/]+)#i', 'wp_embed_handler_youtube' );
 
 	wp_embed_register_handler( 'googlevideo', '#http://video\.google\.([A-Za-z.]{2,5})/videoplay\?docid=([\d-]+)(.*?)#i', 'wp_embed_handler_googlevideo' );
 
@@ -2708,7 +2717,7 @@ function wp_prepare_attachment_for_js( $attachment ) {
 	$response = array(
 		'id'          => $attachment->ID,
 		'title'       => $attachment->post_title,
-		'filename'    => wp_basename( $attachment->guid ),
+		'filename'    => wp_basename( get_attached_file( $attachment->ID ) ),
 		'url'         => $attachment_url,
 		'link'        => get_attachment_link( $attachment->ID ),
 		'alt'         => get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ),

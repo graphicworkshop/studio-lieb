@@ -284,17 +284,27 @@
 		 * @param {Object}  args.completeCallback
 		 */
 		onChangeActive: function ( active, args ) {
-			var duration = ( 'resolved' === api.previewer.deferred.active.state() ? args.duration : 0 );
-			if ( ! $.contains( document, this.container ) ) {
+			var duration, construct = this;
+			duration = ( 'resolved' === api.previewer.deferred.active.state() ? args.duration : 0 );
+			if ( ! $.contains( document, construct.container[0] ) ) {
 				// jQuery.fn.slideUp is not hiding an element if it is not in the DOM
-				this.container.toggle( active );
+				construct.container.toggle( active );
 				if ( args.completeCallback ) {
 					args.completeCallback();
 				}
 			} else if ( active ) {
-				this.container.stop( true, true ).slideDown( duration, args.completeCallback );
+				construct.container.stop( true, true ).slideDown( duration, args.completeCallback );
 			} else {
-				this.container.stop( true, true ).slideUp( duration, args.completeCallback );
+				if ( construct.expanded() ) {
+					construct.collapse({
+						duration: duration,
+						completeCallback: function() {
+							construct.container.stop( true, true ).slideUp( duration, args.completeCallback );
+						}
+					});
+				} else {
+					construct.container.stop( true, true ).slideUp( duration, args.completeCallback );
+				}
 			}
 		},
 
@@ -514,9 +524,7 @@
 		 * @since 4.1.0
 		 */
 		attachEvents: function () {
-			var section = this,
-				backBtn = section.container.find( '.customize-section-back' ),
-				sectionTitle = section.container.find( '.accordion-section-title' ).first();
+			var section = this;
 
 			// Expand/Collapse accordion sections on click.
 			section.container.find( '.accordion-section-title, .customize-section-back' ).on( 'click keydown', function( event ) {
@@ -527,14 +535,8 @@
 
 				if ( section.expanded() ) {
 					section.collapse();
-					backBtn.attr( 'tabindex', '-1' );
-					sectionTitle.attr( 'tabindex', '0' );
-					sectionTitle.focus();
 				} else {
 					section.expand();
-					sectionTitle.attr( 'tabindex', '-1' );
-					backBtn.attr( 'tabindex', '0' );
-					backBtn.focus();
 				}
 			});
 		},
@@ -582,6 +584,8 @@
 				container = section.container.closest( '.wp-full-overlay-sidebar-content' ),
 				content = section.container.find( '.accordion-section-content' ),
 				overlay = section.container.closest( '.wp-full-overlay' ),
+				backBtn = section.container.find( '.customize-section-back' ),
+				sectionTitle = section.container.find( '.accordion-section-title' ).first(),
 				expand;
 
 			if ( expanded && ! section.container.hasClass( 'open' ) ) {
@@ -596,6 +600,13 @@
 						position = content.offset().top;
 						scroll = container.scrollTop();
 						content.css( 'margin-top', ( 45 - position - scroll ) );
+						content.css( 'height', ( window.innerHeight - 90 ) );
+						sectionTitle.attr( 'tabindex', '-1' );
+						backBtn.attr( 'tabindex', '0' );
+						backBtn.focus();
+						if ( args.completeCallback ) {
+							args.completeCallback();
+						}
 					};
 				}
 
@@ -616,12 +627,21 @@
 					expand();
 				}
 
-			} else if ( section.container.hasClass( 'open' ) ) {
+			} else if ( ! expanded && section.container.hasClass( 'open' ) ) {
 				section.container.removeClass( 'open' );
 				overlay.removeClass( 'section-open' );
 				content.css( 'margin-top', 'inherit' );
 				container.scrollTop( 0 );
-				section.container.find( '.accordion-section-title' ).focus();
+				backBtn.attr( 'tabindex', '-1' );
+				sectionTitle.attr( 'tabindex', '0' );
+				sectionTitle.focus();
+				if ( args.completeCallback ) {
+					args.completeCallback();
+				}
+			} else {
+				if ( args.completeCallback ) {
+					args.completeCallback();
+				}
 			}
 		}
 	});
@@ -3187,6 +3207,27 @@
 
 			control.setting.bind( function( to ) {
 				control.element.set( 'blank' !== to );
+			});
+		});
+
+		// Change previewed URL to the homepage when changing the page_on_front.
+		api( 'show_on_front', 'page_on_front', function( showOnFront, pageOnFront ) {
+			var updatePreviewUrl = function() {
+				if ( showOnFront() === 'page' && parseInt( pageOnFront(), 10 ) > 0 ) {
+					api.previewer.previewUrl.set( api.settings.url.home );
+				}
+			};
+			showOnFront.bind( updatePreviewUrl );
+			pageOnFront.bind( updatePreviewUrl );
+		});
+
+		// Change the previewed URL to the selected page when changing the page_for_posts.
+		api( 'page_for_posts', function( setting ) {
+			setting.bind(function( pageId ) {
+				pageId = parseInt( pageId, 10 );
+				if ( pageId > 0 ) {
+					api.previewer.previewUrl.set( api.settings.url.home + '?page_id=' + pageId );
+				}
 			});
 		});
 

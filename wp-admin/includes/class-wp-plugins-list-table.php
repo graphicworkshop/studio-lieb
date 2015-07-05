@@ -199,12 +199,15 @@ class WP_Plugins_List_Table extends WP_List_Table {
 
 		$total_this_page = $totals[ $status ];
 
-		if ( $orderby ) {
+		if ( ! $orderby ) {
+			$orderby = 'Name';
+		} else {
 			$orderby = ucfirst( $orderby );
-			$order = strtoupper( $order );
-
-			uasort( $this->items, array( $this, '_order_callback' ) );
 		}
+
+		$order = strtoupper( $order );
+
+		uasort( $this->items, array( $this, '_order_callback' ) );
 
 		$plugins_per_page = $this->get_items_per_page( str_replace( '-', '_', $screen->id . '_per_page' ), 999 );
 
@@ -254,10 +257,11 @@ class WP_Plugins_List_Table extends WP_List_Table {
 		if ( $a == $b )
 			return 0;
 
-		if ( 'DESC' == $order )
-			return ( $a < $b ) ? 1 : -1;
-		else
-			return ( $a < $b ) ? -1 : 1;
+		if ( 'DESC' == $order ) {
+			return strcasecmp( $b, $a );
+		} else {
+			return strcasecmp( $a, $b );
+		}
 	}
 
 	/**

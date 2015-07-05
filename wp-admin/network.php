@@ -58,7 +58,7 @@ function network_domain_check() {
  */
 function allow_subdomain_install() {
 	$domain = preg_replace( '|https?://([^/]+)|', '$1', get_option( 'home' ) );
-	if( parse_url( get_option( 'home' ), PHP_URL_PATH ) || 'localhost' == $domain || preg_match( '|^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$|', $domain ) )
+	if ( parse_url( get_option( 'home' ), PHP_URL_PATH ) || 'localhost' == $domain || preg_match( '|^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$|', $domain ) )
 		return false;
 
 	return true;
@@ -145,7 +145,7 @@ get_current_screen()->set_help_sidebar(
 include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
 <div class="wrap">
-<h2><?php echo esc_html( $title ); ?></h2>
+<h1><?php echo esc_html( $title ); ?></h1>
 
 <?php
 /**

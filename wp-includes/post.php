@@ -459,8 +459,9 @@ function get_post( $post = null, $output = OBJECT, $filter = 'raw' ) {
  *
  * @since 3.5.0
  *
+ * @property string $page_template
+ *
  * @property-read array  $ancestors
- * @property-read string $page_template
  * @property-read int    $post_category
  * @property-read string $tag_input
  *
@@ -680,7 +681,7 @@ final class WP_Post {
 	/**
 	 * Constructor.
 	 *
-	 * @param WP_Post $post Post object.
+	 * @param WP_Post|object $post Post object.
 	 */
 	public function __construct( $post ) {
 		foreach ( get_object_vars( $post ) as $key => $value )
@@ -971,7 +972,7 @@ function get_page_statuses() {
  *     @type bool        $_builtin                  Whether the status is built-in. Core-use only.
  *                                                  Default false.
  *     @type bool        $public                    Whether posts of this status should be shown
- *                                                  in the front end of the site. Default true.
+ *                                                  in the front end of the site. Default false.
  *     @type bool        $internal                  Whether the status is for internal use only.
  *                                                  Default false.
  *     @type bool        $protected                 Whether posts with this status should be protected.
@@ -1675,7 +1676,7 @@ function get_post_type_labels( $post_type_object ) {
 	 *
 	 * @see get_post_type_labels() for the full list of labels.
 	 *
-	 * @param array $labels Array of labels for the given post type.
+	 * @param object $labels Object with labels for the post type as member variables.
 	 */
 	return apply_filters( "post_type_labels_{$post_type}", $labels );
 }
@@ -3126,11 +3127,25 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 
 	$user_id = get_current_user_id();
 
-	$defaults = array('post_status' => 'draft', 'post_type' => 'post', 'post_author' => $user_id,
-		'ping_status' => get_option('default_ping_status'), 'post_parent' => 0,
-		'menu_order' => 0, 'to_ping' =>  '', 'pinged' => '', 'post_password' => '',
-		'guid' => '', 'post_content_filtered' => '', 'post_excerpt' => '', 'import_id' => 0,
-		'post_content' => '', 'post_title' => '', 'context' => '');
+	$defaults = array(
+		'post_author' => $user_id,
+		'post_content' => '',
+		'post_content_filtered' => '',
+		'post_title' => '',
+		'post_excerpt' => '',
+		'post_status' => 'draft',
+		'post_type' => 'post',
+		'comment_status' => '',
+		'ping_status' => '',
+		'post_password' => '',
+		'to_ping' =>  '',
+		'pinged' => '',
+		'post_parent' => 0,
+		'menu_order' => 0,
+		'guid' => '',
+		'import_id' => 0,
+		'context' => '',
+	);
 
 	$postarr = wp_parse_args($postarr, $defaults);
 
@@ -3293,7 +3308,7 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 			if ( mysql2date('U', $post_date_gmt, false) > mysql2date('U', $now, false) ) {
 				$post_status = 'future';
 			}
-		} elseif( 'future' == $post_status ) {
+		} elseif ( 'future' == $post_status ) {
 			$now = gmdate('Y-m-d H:i:59');
 			if ( mysql2date('U', $post_date_gmt, false) <= mysql2date('U', $now, false) ) {
 				$post_status = 'publish';
@@ -3301,11 +3316,12 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 		}
 	}
 
+	// Comment status.
 	if ( empty( $postarr['comment_status'] ) ) {
 		if ( $update ) {
 			$comment_status = 'closed';
 		} else {
-			$comment_status = get_option('default_comment_status');
+			$comment_status = get_default_comment_status( $post_type );
 		}
 	} else {
 		$comment_status = $postarr['comment_status'];
@@ -3314,7 +3330,7 @@ function wp_insert_post( $postarr, $wp_error = false ) {
 	// These variables are needed by compact() later.
 	$post_content_filtered = $postarr['post_content_filtered'];
 	$post_author = empty( $postarr['post_author'] ) ? $user_id : $postarr['post_author'];
-	$ping_status = empty( $postarr['ping_status'] ) ? get_option( 'default_ping_status' ) : $postarr['ping_status'];
+	$ping_status = empty( $postarr['ping_status'] ) ? get_default_comment_status( $post_type, 'pingback' ) : $postarr['ping_status'];
 	$to_ping = isset( $postarr['to_ping'] ) ? sanitize_trackback_urls( $postarr['to_ping'] ) : '';
 	$pinged = isset( $postarr['pinged'] ) ? $postarr['pinged'] : '';
 	$import_id = isset( $postarr['import_id'] ) ? $postarr['import_id'] : 0;
@@ -4055,8 +4071,51 @@ function wp_transition_post_status( $new_status, $old_status, $post ) {
 }
 
 //
-// Trackback and ping functions
+// Comment, trackback, and pingback functions.
 //
+
+/**
+ * Get the default comment status for a post type.
+ *
+ * @since 4.3.0
+ *
+ * @param  string $post_type    Optional. Post type. Default 'post'.
+ * @param  string $comment_type Optional. Comment type. Default 'comment'.
+ * @return string Expected return value is 'open' or 'closed'.
+ */
+function get_default_comment_status( $post_type = 'post', $comment_type = 'comment' ) {
+	switch ( $comment_type ) {
+		case 'pingback' :
+		case 'trackback' :
+			$supports = 'trackbacks';
+			$option = 'ping';
+			break;
+		default :
+			$supports = 'comments';
+			$option = 'comment';
+	}
+
+	// Set the status.
+	if ( 'page' === $post_type ) {
+		$status = 'closed';
+	} elseif ( post_type_supports( $post_type, $supports ) ) {
+		$status = get_option( "default_{$option}_status" );
+	} else {
+		$status = 'closed';
+	}
+
+	/**
+	 * Filter the default comment status for the given post type.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string $status       Default status for the given post type,
+	 *                             either 'open' or 'closed'.
+	 * @param string $post_type    Post type. Default is `post`.
+	 * @param string $comment_type Type of comment. Default is `comment`.
+	 */
+	return apply_filters( 'get_default_comment_status' , $status, $post_type, $comment_type );
+}
 
 /**
  * Add a URL to those already pinged.

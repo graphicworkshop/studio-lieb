@@ -482,10 +482,6 @@ class WP_Comment_Query {
 		$this->meta_query = new WP_Meta_Query();
 		$this->meta_query->parse_query_vars( $this->query_vars );
 
-		if ( ! empty( $this->meta_query->queries ) ) {
-			$meta_query_clauses = $this->meta_query->get_sql( 'comment', $wpdb->comments, 'comment_ID', $this );
-		}
-
 		/**
 		 * Fires before comments are retrieved.
 		 *
@@ -494,6 +490,12 @@ class WP_Comment_Query {
 		 * @param WP_Comment_Query &$this Current instance of WP_Comment_Query, passed by reference.
 		 */
 		do_action_ref_array( 'pre_get_comments', array( &$this ) );
+
+		// Reparse query vars, in case they were modified in a 'pre_get_comments' callback.
+		$this->meta_query->parse_query_vars( $this->query_vars );
+		if ( ! empty( $this->meta_query->queries ) ) {
+			$meta_query_clauses = $this->meta_query->get_sql( 'comment', $wpdb->comments, 'comment_ID', $this );
+		}
 
 		// $args can include anything. Only use the args defined in the query_var_defaults to compute the key.
 		$key = md5( serialize( wp_array_slice_assoc( $this->query_vars, array_keys( $this->query_var_defaults ) ) ) );
@@ -893,6 +895,9 @@ class WP_Comment_Query {
 		$comments = apply_filters_ref_array( 'the_comments', array( $results, &$this ) );
 
 		wp_cache_add( $cache_key, $comments, 'comment' );
+		if ( '*' === $fields ) {
+			update_comment_cache( $comments );
+		}
 
 		$this->comments = $comments;
 		return $this->comments;
@@ -969,9 +974,9 @@ class WP_Comment_Query {
 		$parsed = false;
 		if ( $orderby == $this->query_vars['meta_key'] || $orderby == 'meta_value' ) {
 			$parsed = "$wpdb->commentmeta.meta_value";
-		} else if ( $orderby == 'meta_value_num' ) {
+		} elseif ( $orderby == 'meta_value_num' ) {
 			$parsed = "$wpdb->commentmeta.meta_value+0";
-		} else if ( in_array( $orderby, $allowed_keys ) ) {
+		} elseif ( in_array( $orderby, $allowed_keys ) ) {
 
 			if ( isset( $meta_query_clauses[ $orderby ] ) ) {
 				$meta_clause = $meta_query_clauses[ $orderby ];
@@ -1488,8 +1493,8 @@ function separate_comments(&$comments) {
  * @global WP_Query $wp_query
  *
  * @param array $comments Optional array of comment objects. Defaults to $wp_query->comments
- * @param int $per_page Optional comments per page.
- * @param boolean $threaded Optional control over flat or threaded comments.
+ * @param int   $per_page Optional comments per page.
+ * @param bool  $threaded Optional control over flat or threaded comments.
  * @return int Number of comment pages.
  */
 function get_comment_pages_count( $comments = null, $per_page = null, $threaded = null ) {
@@ -2266,6 +2271,7 @@ function wp_throttle_comment_flood($block, $time_lastcomment, $time_newcomment) 
  * See {@link https://core.trac.wordpress.org/ticket/9235}
  *
  * @since 1.5.0
+ * @since 4.3.0 'comment_agent' and 'comment_author_IP' can be set via `$commentdata`.
  *
  * @see wp_insert_comment()
  *
@@ -2304,8 +2310,15 @@ function wp_new_comment( $commentdata ) {
 	$parent_status = ( 0 < $commentdata['comment_parent'] ) ? wp_get_comment_status($commentdata['comment_parent']) : '';
 	$commentdata['comment_parent'] = ( 'approved' == $parent_status || 'unapproved' == $parent_status ) ? $commentdata['comment_parent'] : 0;
 
-	$commentdata['comment_author_IP'] = preg_replace( '/[^0-9a-fA-F:., ]/', '',$_SERVER['REMOTE_ADDR'] );
-	$commentdata['comment_agent']     = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 ) : '';
+	if ( ! isset( $commentdata['comment_author_IP'] ) ) {
+		$commentdata['comment_author_IP'] = $_SERVER['REMOTE_ADDR'];
+	}
+	$commentdata['comment_author_IP'] = preg_replace( '/[^0-9a-fA-F:., ]/', '', $commentdata['comment_author_IP'] );
+
+	if ( ! isset( $commentdata['comment_agent'] ) ) {
+		$commentdata['comment_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT']: '';
+	}
+	$commentdata['comment_agent'] = substr( $commentdata['comment_agent'], 0, 254 );
 
 	if ( empty( $commentdata['comment_date'] ) ) {
 		$commentdata['comment_date'] = current_time('mysql');

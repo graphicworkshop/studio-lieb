@@ -721,7 +721,7 @@ class WP_User_Query {
 		if ( empty( $qv['orderby'] ) ) {
 			// Default order is by 'user_login'.
 			$ordersby = array( 'user_login' => $order );
-		} else if ( is_array( $qv['orderby'] ) ) {
+		} elseif ( is_array( $qv['orderby'] ) ) {
 			$ordersby = $qv['orderby'];
 		} else {
 			// 'orderby' values may be a comma- or space-separated list.
@@ -797,7 +797,7 @@ class WP_User_Query {
 				elseif ( preg_match('|^https?://|', $search) && ! ( is_multisite() && wp_is_large_network( 'users' ) ) )
 					$search_columns = array('user_url');
 				else
-					$search_columns = array('user_login', 'user_nicename');
+					$search_columns = array('user_login', 'user_url', 'user_email', 'user_nicename', 'display_name');
 			}
 
 			/**
@@ -1805,40 +1805,49 @@ function validate_username( $username ) {
 /**
  * Insert a user into the database.
  *
- * Most of the $userdata array fields have filters associated with the values.
- * The exceptions are 'rich_editing', 'role', 'jabber', 'aim', 'yim',
- * 'user_registered', and 'ID'. The filters have the prefix 'pre_user_' followed
- * by the field name. An example using 'description' would have the filter
- * called, 'pre_user_description' that can be hooked into.
+ * Most of the `$userdata` array fields have filters associated with the values. Exceptions are
+ * 'ID', 'rich_editing', 'comment_shortcuts', 'admin_color', 'use_ssl',
+ * 'user_registered', and 'role'. The filters have the prefix 'pre_user_' followed by the field
+ * name. An example using 'description' would have the filter called, 'pre_user_description' that
+ * can be hooked into.
  *
  * @since 2.0.0
+ * @since 3.6.0 The `aim`, `jabber`, and `yim` fields were removed as default user contact
+ *              methods for new installs. See wp_get_user_contact_methods().
  *
  * @global wpdb $wpdb WordPress database object for queries.
  *
- * @param array $userdata {
+ * @param array|object|WP_User $userdata {
  *     An array, object, or WP_User object of user data arguments.
  *
- *     @type int         $ID              User ID. If supplied, the user will be updated.
- *     @type string      $user_pass       The plain-text user password.
- *     @type string      $user_login      The user's login username.
- *     @type string      $user_nicename   The URL-friendly user name.
- *     @type string      $user_url        The user URL.
- *     @type string      $user_email      The user email address.
- *     @type string      $display_name    The user's display name.
- *                                        Default is the the user's username.
- *     @type string      $nickname        The user's nickname. Default
- *                                        Default is the the user's username.
- *     @type string      $first_name      The user's first name. For new users, will be used
- *                                        to build $display_name if unspecified.
- *     @type stirng      $last_name       The user's last name. For new users, will be used
- *                                        to build $display_name if unspecified.
- *     @type string|bool $rich_editing    Whether to enable the rich-editor for the user. False
- *                                        if not empty.
- *     @type string      $user_registered Date the user registered. Format is 'Y-m-d H:i:s'.
- *     @type string      $role            User's role.
- *     @type string      $jabber          User's Jabber account username.
- *     @type string      $aim             User's AIM account username.
- *     @type string      $yim             User's Yahoo! messenger username.
+ *     @type int         $ID                   User ID. If supplied, the user will be updated.
+ *     @type string      $user_pass            The plain-text user password.
+ *     @type string      $user_login           The user's login username.
+ *     @type string      $user_nicename        The URL-friendly user name.
+ *     @type string      $user_url             The user URL.
+ *     @type string      $user_email           The user email address.
+ *     @type string      $display_name         The user's display name.
+ *                                             Default is the the user's username.
+ *     @type string      $nickname             The user's nickname.
+ *                                             Default is the the user's username.
+ *     @type string      $first_name           The user's first name. For new users, will be used
+ *                                             to build the first part of the user's display name
+ *                                             if `$display_name` is not specified.
+ *     @type string      $last_name            The user's last name. For new users, will be used
+ *                                             to build the second part of the user's display name
+ *                                             if `$display_name` is not specified.
+ *     @type string      $description          The user's biographical description.
+ *     @type string|bool $rich_editing         Whether to enable the rich-editor for the user.
+ *                                             False if not empty.
+ *     @type string|bool $comment_shortcuts    Whether to enable comment moderation keyboard
+ *                                             shortcuts for the user. Default false.
+ *     @type string      $admin_color          Admin color scheme for the user. Default 'fresh'.
+ *     @type bool        $use_ssl              Whether the user should always access the admin over
+ *                                             https. Default false.
+ *     @type string      $user_registered      Date the user registered. Format is 'Y-m-d H:i:s'.
+ *     @type string|bool $show_admin_bar_front Whether to display the Admin Bar for the user on the
+ *                                             site's frontend. Default true.
+ *     @type string      $role                 User's role.
  * }
  * @return int|WP_Error The newly created user's ID or a WP_Error object if the user could not
  *                      be created.
@@ -2014,7 +2023,7 @@ function wp_insert_user( $userdata ) {
 
 	$meta['rich_editing'] = empty( $userdata['rich_editing'] ) ? 'true' : $userdata['rich_editing'];
 
-	$meta['comment_shortcuts'] = empty( $userdata['comment_shortcuts'] ) ? 'false' : $userdata['comment_shortcuts'];
+	$meta['comment_shortcuts'] = empty( $userdata['comment_shortcuts'] ) || 'false' === $userdata['comment_shortcuts'] ? 'false' : 'true';
 
 	$admin_color = empty( $userdata['admin_color'] ) ? 'fresh' : $userdata['admin_color'];
 	$meta['admin_color'] = preg_replace( '|[^a-z0-9 _.\-@]|i', '', $admin_color );
@@ -2140,17 +2149,159 @@ function wp_update_user($userdata) {
 	// Escape data pulled from DB.
 	$user = add_magic_quotes( $user );
 
-	// If password is changing, hash it now.
 	if ( ! empty($userdata['user_pass']) ) {
+		// If password is changing, hash it now
 		$plaintext_pass = $userdata['user_pass'];
-		$userdata['user_pass'] = wp_hash_password($userdata['user_pass']);
+		$userdata['user_pass'] = wp_hash_password( $userdata['user_pass'] );
+		/**
+		 * Filter to stop the sending of the password change email.
+		 *
+		 * @since 4.3.0
+		 * @see  wp_insert_user() For $user and $userdata fields.
+		 *
+		 * @param bool Return false to not send the email.
+		 * @param array $user The original user array.
+		 * @param array $userdata The updated user array.
+		 *
+		 */
+		$send_pass_change_email = apply_filters( 'send_pass_change_email', true, $user, $userdata );
 	}
 
-	wp_cache_delete($user[ 'user_email' ], 'useremail');
+	if ( isset( $userdata['user_email'] ) && $user['user_email'] !== $userdata['user_email'] ) {
+		/**
+		 * Filter to stop the sending of the email change email.
+		 *
+		 * @since 4.3.0
+		 * @see  wp_insert_user() For $user and $userdata fields.
+		 *
+		 * @param bool Return false to not send the email.
+		 * @param array $user The original user array.
+		 * @param array $userdata The updated user array.
+		 *
+		 */
+		$send_email_change_email = apply_filters( 'send_email_change_email', true, $user, $userdata );
+	}
+
+	wp_cache_delete( $user['user_email'], 'useremail' );
 
 	// Merge old and new fields with new fields overwriting old ones.
-	$userdata = array_merge($user, $userdata);
-	$user_id = wp_insert_user($userdata);
+	$userdata = array_merge( $user, $userdata );
+	$user_id = wp_insert_user( $userdata );
+
+	if ( ! is_wp_error( $user_id ) ) {
+
+		$blog_name = wp_specialchars_decode( get_option( 'blogname' ) );
+
+		if ( ! empty( $send_pass_change_email ) ) {
+
+			/* translators: Do not translate USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+			$pass_change_text = __( 'Hi ###USERNAME###,
+
+This notice confirms that your password was changed on ###SITENAME###.
+
+If you did not change your password, please contact the Site Administrator at
+###ADMIN_EMAIL###
+
+This email has been sent to ###EMAIL###
+
+Regards,
+All at ###SITENAME###
+###SITEURL###' );
+
+			$pass_change_email = array(
+				'to'      => $user['user_email'],
+				'subject' => __( '[%s] Notice of Password Change' ),
+				'message' => $pass_change_text,
+				'headers' => '',
+			);
+
+			/**
+			 * Filter the email sent when the user's password is changed.
+			 *
+			 * @since 4.3.0
+			 *
+			 * @param array $pass_change_email {
+			 *            Used to build wp_mail(). https://developer.wordpress.org/reference/functions/wp_mail/
+			 *            @type string $to      The intended recipients. Add emails in a comma separated string.
+			 *            @type string $subject The subject of the email.
+			 *            @type string $message The content of the email.
+			 *                The following strings have a special meaning and will get replaced dynamically:
+			 *                ###USERNAME###    The current user's username.
+			 *                ###ADMIN_EMAIL### The admin email in case this was unexpected.
+			 *                ###EMAIL###       The old email.
+			 *                ###SITENAME###    The name of the site.
+			 *                ###SITEURL###     The URL to the site.
+			 *            @type  string $headers Headers. Add headers in a newline (\r\n) separated string.
+			 *        }
+			 * @param array $user The original user array.
+			 * @param array $userdata The updated user array.
+			 *
+			 */
+			$pass_change_email = apply_filters( 'password_change_email', $pass_change_email, $user, $userdata );
+
+			$pass_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $pass_change_email['message'] );
+			$pass_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $pass_change_email['message'] );
+			$pass_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $pass_change_email['message'] );
+			$pass_change_email['message'] = str_replace( '###SITENAME###', get_option( 'blogname' ), $pass_change_email['message'] );
+			$pass_change_email['message'] = str_replace( '###SITEURL###', get_option( 'siteurl' ), $pass_change_email['message'] );
+
+			wp_mail( $pass_change_email['to'], sprintf( $pass_change_email['subject'], $blog_name ), $pass_change_email['message'], $pass_change_email['headers'] );
+		}
+
+		if ( ! empty( $send_email_change_email ) ) {
+			/* translators: Do not translate USERNAME, ADMIN_EMAIL, EMAIL, SITENAME, SITEURL: those are placeholders. */
+			$email_change_text = __( 'Hi ###USERNAME###,
+
+This notice confirms that your email was changed on ###SITENAME###.
+
+If you did not change your email, please contact the Site Administrator at
+###ADMIN_EMAIL###
+
+This email has been sent to ###EMAIL###
+
+Regards,
+All at ###SITENAME###
+###SITEURL###' );
+
+			$email_change_email = array(
+				'to'      => $user['user_email'],
+				'subject' => __( '[%s] Notice of Email Change' ),
+				'message' => $email_change_text,
+				'headers' => '',
+			);
+
+			/**
+			 * Filter the email sent when the user's password is changed.
+			 *
+			 * @since 4.3.0
+			 *
+			 * @param array $email_change_email {
+			 *            Used to build wp_mail(). https://developer.wordpress.org/reference/functions/wp_mail/
+			 *            @type string $to      The intended recipients.
+			 *            @type string $subject The subject of the email.
+			 *            @type string $message The content of the email.
+			 *                The following strings have a special meaning and will get replaced dynamically:
+			 *                ###USERNAME###    The current user's username.
+			 *                ###ADMIN_EMAIL### The admin email in case this was unexpected.
+			 *                ###EMAIL###       The old email.
+			 *                ###SITENAME###    The name of the site.
+			 *                ###SITEURL###     The URL to the site.
+			 *            @type string $headers Headers.
+			 *        }
+			 * @param array $user The original user array.
+			 * @param array $userdata The updated user array.
+			 */
+			$email_change_email = apply_filters( 'email_change_email', $email_change_email, $user, $userdata );
+
+			$email_change_email['message'] = str_replace( '###USERNAME###', $user['user_login'], $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###ADMIN_EMAIL###', get_option( 'admin_email' ), $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###EMAIL###', $user['user_email'], $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###SITENAME###', get_option( 'blogname' ), $email_change_email['message'] );
+			$email_change_email['message'] = str_replace( '###SITEURL###', get_option( 'siteurl' ), $email_change_email['message'] );
+
+			wp_mail( $email_change_email['to'], sprintf( $email_change_email['subject'], $blog_name ), $email_change_email['message'], $email_change_email['headers'] );
+		}
+	}
 
 	// Update the cookies if the password changed.
 	$current_user = wp_get_current_user();
@@ -2258,7 +2409,7 @@ function _wp_get_user_contactmethods( $user = null ) {
  * @return string The password hint text.
  */
 function wp_get_password_hint() {
-	$hint = __( 'Hint: The password should be at least seven characters long. To make it stronger, use upper and lower case letters, numbers, and symbols like ! " ? $ % ^ &amp; ).' );
+	$hint = __( 'Hint: The password should be at least twelve characters long. To make it stronger, use upper and lower case letters, numbers, and symbols like ! " ? $ % ^ &amp; ).' );
 
 	/**
 	 * Filter the text describing the site's password complexity policy.
@@ -2307,18 +2458,42 @@ function check_password_reset_key($key, $login) {
 		$wp_hasher = new PasswordHash( 8, true );
 	}
 
-	if ( $wp_hasher->CheckPassword( $key, $row->user_activation_key ) )
-		return get_userdata( $row->ID );
+	/**
+	 * Filter the expiration time of password reset keys.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param int $expiration The expiration time in seconds.
+	 */
+	$expiration_duration = apply_filters( 'password_reset_expiration', DAY_IN_SECONDS );
 
-	if ( $key === $row->user_activation_key ) {
+	if ( false !== strpos( $row->user_activation_key, ':' ) ) {
+		list( $pass_request_time, $pass_key ) = explode( ':', $row->user_activation_key, 2 );
+		$expiration_time = $pass_request_time + $expiration_duration;
+	} else {
+		$pass_key = $row->user_activation_key;
+		$expiration_time = false;
+	}
+
+	$hash_is_correct = $wp_hasher->CheckPassword( $key, $pass_key );
+
+	if ( $hash_is_correct && $expiration_time && time() < $expiration_time ) {
+		return get_userdata( $row->ID );
+	} elseif ( $hash_is_correct && $expiration_time ) {
+		// Key has an expiration time that's passed
+		return new WP_Error( 'expired_key', __( 'Invalid key' ) );
+	}
+
+	if ( hash_equals( $row->user_activation_key, $key ) || ( $hash_is_correct && ! $expiration_time ) ) {
 		$return = new WP_Error( 'expired_key', __( 'Invalid key' ) );
 		$user_id = $row->ID;
 
 		/**
 		 * Filter the return value of check_password_reset_key() when an
-		 * old-style key is used (plain-text key was stored in the database).
+		 * old-style key is used.
 		 *
-		 * @since 3.7.0
+		 * @since 3.7.0 Previously plain-text keys were stored in the database.
+		 * @since 4.3.0 Previously key hashes were stored without an expiration time.
 		 *
 		 * @param WP_Error $return  A WP_Error object denoting an expired key.
 		 *                          Return a WP_User object to validate the key.
@@ -2440,7 +2615,7 @@ function register_new_user( $user_login, $user_email ) {
 
 	update_user_option( $user_id, 'default_password_nag', true, true ); //Set up the Password change nag.
 
-	wp_new_user_notification( $user_id, $user_pass );
+	wp_new_user_notification( $user_id );
 
 	return $user_id;
 }

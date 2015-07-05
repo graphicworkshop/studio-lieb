@@ -48,6 +48,12 @@ class WP_Posts_List_Table extends WP_List_Table {
 	private $is_trash;
 
 	/**
+	 * @since 4.3.0
+	 * @var int
+	 */
+	protected $current_level = 0;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 3.1.0
@@ -219,7 +225,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 		foreach ( get_post_stati( array('show_in_admin_all_list' => false) ) as $state )
 			$total_posts -= $num_posts->$state;
 
-		if ( empty( $class ) && $this->is_base_request() && ! $this->user_posts_count ) {
+		if ( empty( $class ) && ( ( $this->is_base_request() && ! $this->user_posts_count ) || isset( $_REQUEST['all_posts'] ) ) ) {
 			$class =  ' class="current"';
 		}
 
@@ -671,45 +677,286 @@ class WP_Posts_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * @global string  $mode
-	 * @global WP_Post $post
+	 * @since 4.3.0
 	 *
 	 * @param WP_Post $post
-	 * @param int $level
 	 */
-	public function single_row( $post, $level = 0 ) {
+	public function column_cb( $post ) {
+		if ( current_user_can( 'edit_post', $post->ID ) ): ?>
+			<label class="screen-reader-text" for="cb-select-<?php the_ID(); ?>"><?php
+				printf( __( 'Select %s' ), _draft_or_post_title() );
+			?></label>
+			<input id="cb-select-<?php the_ID(); ?>" type="checkbox" name="post[]" value="<?php the_ID(); ?>" />
+			<div class="locked-indicator"></div>
+		<?php endif;
+	}
+
+	/**
+	 * @since 4.3.0
+	 *
+	 * @global string $mode
+	 *
+	 * @param WP_Post $post
+	 */
+	public function column_title( $post ) {
 		global $mode;
 
-		$global_post = get_post();
+		if ( $this->hierarchical_display ) {
+			if ( 0 === $this->current_level && (int) $post->post_parent > 0 ) {
+				// Sent level 0 by accident, by default, or because we don't know the actual level.
+				$find_main_page = (int) $post->post_parent;
+				while ( $find_main_page > 0 ) {
+					$parent = get_post( $find_main_page );
 
-		$post = get_post( $post );
+					if ( is_null( $parent ) ) {
+						break;
+					}
 
-		$GLOBALS['post'] = $post;
-		setup_postdata( $post );
+					$this->current_level++;
+					$find_main_page = (int) $parent->post_parent;
 
-		$edit_link = get_edit_post_link( $post->ID );
-		$title = _draft_or_post_title();
-		$post_type_object = get_post_type_object( $post->post_type );
+					if ( ! isset( $parent_name ) ) {
+						/** This filter is documented in wp-includes/post-template.php */
+						$parent_name = apply_filters( 'the_title', $parent->post_title, $parent->ID );
+					}
+				}
+			}
+		}
+
+		$pad = str_repeat( '&#8212; ', $this->current_level );
+		echo "<strong>";
+
+		$format = get_post_format( $post->ID );
+		if ( $format ) {
+			$label = get_post_format_string( $format );
+
+			echo '<a href="' . esc_url( add_query_arg( array( 'post_format' => $format, 'post_type' => $post->post_type ), 'edit.php' ) ) . '" class="post-state-format post-format-icon post-format-' . $format . '" title="' . $label . '">' . $label . ":</a> ";
+		}
+
 		$can_edit_post = current_user_can( 'edit_post', $post->ID );
+		$title = _draft_or_post_title();
 
-		$classes = 'iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
-
-		$lock_holder = wp_check_post_lock( $post->ID );
-		if ( $lock_holder ) {
-			$classes .= ' wp-locked';
-			$lock_holder = get_userdata( $lock_holder );
-		}
-
-		if ( $post->post_parent ) {
-		    $count = count( get_post_ancestors( $post->ID ) );
-		    $classes .= ' level-'. $count;
+		if ( $can_edit_post && $post->post_status != 'trash' ) {
+			$edit_link = get_edit_post_link( $post->ID );
+			echo '<a class="row-title" href="' . $edit_link . '" title="' . esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ) . '">' . $pad . $title . '</a>';
 		} else {
-		    $classes .= ' level-0';
+			echo $pad . $title;
 		}
-	?>
-		<tr id="post-<?php echo $post->ID; ?>" class="<?php echo implode( ' ', get_post_class( $classes, $post->ID ) ); ?>">
-	<?php
+		_post_states( $post );
 
+		if ( isset( $parent_name ) ) {
+			$post_type_object = get_post_type_object( $post->post_type );
+			echo ' | ' . $post_type_object->labels->parent_item_colon . ' ' . esc_html( $parent_name );
+		}
+		echo "</strong>\n";
+
+		if ( $can_edit_post && $post->post_status != 'trash' ) {
+			$lock_holder = wp_check_post_lock( $post->ID );
+
+			if ( $lock_holder ) {
+				$lock_holder = get_userdata( $lock_holder );
+				$locked_avatar = get_avatar( $lock_holder->ID, 18 );
+				$locked_text = esc_html( sprintf( __( '%s is currently editing' ), $lock_holder->display_name ) );
+			} else {
+				$locked_avatar = $locked_text = '';
+			}
+
+			echo '<div class="locked-info"><span class="locked-avatar">' . $locked_avatar . '</span> <span class="locked-text">' . $locked_text . "</span></div>\n";
+		}
+
+		if ( ! is_post_type_hierarchical( $this->screen->post_type ) && 'excerpt' == $mode && current_user_can( 'read_post', $post->ID ) ) {
+			the_excerpt();
+		}
+
+		get_inline_data( $post );
+	}
+
+	/**
+	 * @since 4.3.0
+	 *
+	 * @global string $mode
+	 *
+	 * @param WP_Post $post
+	 */
+	public function column_date( $post ) {
+		global $mode;
+
+		if ( '0000-00-00 00:00:00' == $post->post_date ) {
+			$t_time = $h_time = __( 'Unpublished' );
+			$time_diff = 0;
+		} else {
+			$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
+			$m_time = $post->post_date;
+			$time = get_post_time( 'G', true, $post );
+
+			$time_diff = time() - $time;
+
+			if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS ) {
+				$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
+			} else {
+				$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
+			}
+		}
+
+		if ( 'excerpt' == $mode ) {
+			/**
+			 * Filter the published time of the post.
+			 *
+			 * If $mode equals 'excerpt', the published time and date are both displayed.
+			 * If $mode equals 'list' (default), the publish date is displayed, with the
+			 * time and date together available as an abbreviation definition.
+			 *
+			 * @since 2.5.1
+			 *
+			 * @param array   $t_time      The published time.
+			 * @param WP_Post $post        Post object.
+			 * @param string  $column_name The column name.
+			 * @param string  $mode        The list display mode ('excerpt' or 'list').
+			 */
+			echo apply_filters( 'post_date_column_time', $t_time, $post, 'date', $mode );
+		} else {
+
+			/** This filter is documented in wp-admin/includes/class-wp-posts-list-table.php */
+			echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, 'date', $mode ) . '</abbr>';
+		}
+		echo '<br />';
+		if ( 'publish' == $post->post_status ) {
+			_e( 'Published' );
+		} elseif ( 'future' == $post->post_status ) {
+			if ( $time_diff > 0 ) {
+				echo '<strong class="attention">' . __( 'Missed schedule' ) . '</strong>';
+			} else {
+				_e( 'Scheduled' );
+			}
+		} else {
+			_e( 'Last Modified' );
+		}
+	}
+
+	/**
+	 * @since 4.3.0
+	 *
+	 * @param WP_Post $post
+	 */
+	public function column_comments( $post ) {
+		?>
+		<div class="post-com-count-wrapper">
+		<?php
+			$pending_comments = isset( $this->comment_pending_count[$post->ID] ) ? $this->comment_pending_count[$post->ID] : 0;
+
+			$this->comments_bubble( $post->ID, $pending_comments );
+		?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * @since 4.3.0
+	 *
+	 * @param WP_Post $post
+	 */
+	public function column_author( $post ) {
+		printf( '<a href="%s">%s</a>',
+			esc_url( add_query_arg( array( 'post_type' => $post->post_type, 'author' => get_the_author_meta( 'ID' ) ), 'edit.php' )),
+			get_the_author()
+		);
+	}
+
+	/**
+	 * @since 4.3.0
+	 *
+	 * @param WP_Post $post
+	 * @param string  $column_name
+	 */
+	public function column_default( $post, $column_name ) {
+		if ( 'categories' == $column_name ) {
+			$taxonomy = 'category';
+		} elseif ( 'tags' == $column_name ) {
+			$taxonomy = 'post_tag';
+		} elseif ( 0 === strpos( $column_name, 'taxonomy-' ) ) {
+			$taxonomy = substr( $column_name, 9 );
+		} else {
+			$taxonomy = false;
+		}
+		if ( $taxonomy ) {
+			$taxonomy_object = get_taxonomy( $taxonomy );
+			$terms = get_the_terms( $post->ID, $taxonomy );
+			if ( is_array( $terms ) ) {
+				$out = array();
+				foreach ( $terms as $t ) {
+					$posts_in_term_qv = array();
+					if ( 'post' != $post->post_type ) {
+						$posts_in_term_qv['post_type'] = $post->post_type;
+					}
+					if ( $taxonomy_object->query_var ) {
+						$posts_in_term_qv[ $taxonomy_object->query_var ] = $t->slug;
+					} else {
+						$posts_in_term_qv['taxonomy'] = $taxonomy;
+						$posts_in_term_qv['term'] = $t->slug;
+					}
+
+					$out[] = sprintf( '<a href="%s">%s</a>',
+						esc_url( add_query_arg( $posts_in_term_qv, 'edit.php' ) ),
+						esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) )
+					);
+				}
+				/* translators: used between list items, there is a space after the comma */
+				echo join( __( ', ' ), $out );
+			} else {
+				echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . $taxonomy_object->labels->no_terms . '</span>';
+			}
+			return;
+		}
+
+		if ( is_post_type_hierarchical( $post->post_type ) ) {
+
+			/**
+			 * Fires in each custom column on the Posts list table.
+			 *
+			 * This hook only fires if the current post type is hierarchical,
+			 * such as pages.
+			 *
+			 * @since 2.5.0
+			 *
+			 * @param string $column_name The name of the column to display.
+			 * @param int    $post_id     The current post ID.
+			 */
+			do_action( 'manage_pages_custom_column', $column_name, $post->ID );
+		} else {
+
+			/**
+			 * Fires in each custom column in the Posts list table.
+			 *
+			 * This hook only fires if the current post type is non-hierarchical,
+			 * such as posts.
+			 *
+			 * @since 1.5.0
+			 *
+			 * @param string $column_name The name of the column to display.
+			 * @param int    $post_id     The current post ID.
+			 */
+			do_action( 'manage_posts_custom_column', $column_name, $post->ID );
+		}
+
+		/**
+		 * Fires for each custom column of a specific post type in the Posts list table.
+		 *
+		 * The dynamic portion of the hook name, `$post->post_type`, refers to the post type.
+		 *
+		 * @since 3.1.0
+		 *
+		 * @param string $column_name The name of the column to display.
+		 * @param int    $post_id     The current post ID.
+		 */
+		do_action( "manage_{$post->post_type}_posts_custom_column", $column_name, $post->ID );
+	}
+
+	/**
+	 * @since 4.3.0
+	 *
+	 * @param WP_Post $item
+	 */
+	public function single_row_columns( $item ) {
 		list( $columns, $hidden, $sortable, $primary ) = $this->get_column_info();
 
 		foreach ( $columns as $column_name => $column_display_name ) {
@@ -726,241 +973,64 @@ class WP_Posts_List_Table extends WP_List_Table {
 				$classes .= ' hidden';
 			}
 
-			$attributes = "class='$classes'";
+			// Comments column uses HTML in the display name with screen reader text.
+			// Instead of using esc_attr(), we strip tags to get closer to a user-friendly string.
+  			$data = 'data-colname="' . wp_strip_all_tags( $column_display_name ) . '"';
+
+			$attributes = "class='$classes' $data";
 
 			if ( 'cb' === $column_name ) {
-				?>
-				<th scope="row" class="check-column">
-				<?php if ( $can_edit_post ) { ?>
-					<label class="screen-reader-text" for="cb-select-<?php the_ID(); ?>"><?php printf( __( 'Select %s' ), $title ); ?></label>
-					<input id="cb-select-<?php the_ID(); ?>" type="checkbox" name="post[]" value="<?php the_ID(); ?>" />
-					<div class="locked-indicator"></div>
-				<?php } ?>
-				</th>
-				<?php
+				echo '<th scope="row" class="check-column">';
+
+				$this->column_cb( $item );
+
+				echo '</th>';
 			} else {
 				echo "<td $attributes>";
 
-				switch ( $column_name ) {
-
-				case 'title':
-					if ( $this->hierarchical_display ) {
-						if ( 0 == $level && (int) $post->post_parent > 0 ) {
-							// Sent level 0 by accident, by default, or because we don't know the actual level.
-							$find_main_page = (int) $post->post_parent;
-							while ( $find_main_page > 0 ) {
-								$parent = get_post( $find_main_page );
-
-								if ( is_null( $parent ) )
-									break;
-
-								$level++;
-								$find_main_page = (int) $parent->post_parent;
-
-								if ( !isset( $parent_name ) ) {
-									/** This filter is documented in wp-includes/post-template.php */
-									$parent_name = apply_filters( 'the_title', $parent->post_title, $parent->ID );
-								}
-							}
-						}
-					}
-
-					$pad = str_repeat( '&#8212; ', $level );
-					echo "<strong>";
-
-					if ( $format = get_post_format( $post->ID ) ) {
-						$label = get_post_format_string( $format );
-
-						echo '<a href="' . esc_url( add_query_arg( array( 'post_format' => $format, 'post_type' => $post->post_type ), 'edit.php' ) ) . '" class="post-state-format post-format-icon post-format-' . $format . '" title="' . $label . '">' . $label . ":</a> ";
-					}
-
-					if ( $can_edit_post && $post->post_status != 'trash' ) {
-						echo '<a class="row-title" href="' . $edit_link . '" title="' . esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ) . '">' . $pad . $title . '</a>';
-					} else {
-						echo $pad . $title;
-					}
-					_post_states( $post );
-
-					if ( isset( $parent_name ) )
-						echo ' | ' . $post_type_object->labels->parent_item_colon . ' ' . esc_html( $parent_name );
-
-					echo "</strong>\n";
-
-					if ( $can_edit_post && $post->post_status != 'trash' ) {
-						if ( $lock_holder ) {
-							$locked_avatar = get_avatar( $lock_holder->ID, 18 );
-							$locked_text = esc_html( sprintf( __( '%s is currently editing' ), $lock_holder->display_name ) );
-						} else {
-							$locked_avatar = $locked_text = '';
-						}
-
-						echo '<div class="locked-info"><span class="locked-avatar">' . $locked_avatar . '</span> <span class="locked-text">' . $locked_text . "</span></div>\n";
-					}
-
-					if ( ! $this->hierarchical_display && 'excerpt' == $mode && current_user_can( 'read_post', $post->ID ) )
-							the_excerpt();
-
-					get_inline_data( $post );
-				break;
-
-				case 'date':
-					if ( '0000-00-00 00:00:00' == $post->post_date ) {
-						$t_time = $h_time = __( 'Unpublished' );
-						$time_diff = 0;
-					} else {
-						$t_time = get_the_time( __( 'Y/m/d g:i:s a' ) );
-						$m_time = $post->post_date;
-						$time = get_post_time( 'G', true, $post );
-
-						$time_diff = time() - $time;
-
-						if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS )
-							$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
-						else
-							$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
-					}
-
-					if ( 'excerpt' == $mode ) {
-
-						/**
-						 * Filter the published time of the post.
-						 *
-						 * If $mode equals 'excerpt', the published time and date are both displayed.
-						 * If $mode equals 'list' (default), the publish date is displayed, with the
-						 * time and date together available as an abbreviation definition.
-						 *
-						 * @since 2.5.1
-						 *
-						 * @param array   $t_time      The published time.
-						 * @param WP_Post $post        Post object.
-						 * @param string  $column_name The column name.
-						 * @param string  $mode        The list display mode ('excerpt' or 'list').
-						 */
-						echo apply_filters( 'post_date_column_time', $t_time, $post, $column_name, $mode );
-					} else {
-
-						/** This filter is documented in wp-admin/includes/class-wp-posts-list-table.php */
-						echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, $column_name, $mode ) . '</abbr>';
-					}
-					echo '<br />';
-					if ( 'publish' == $post->post_status ) {
-						_e( 'Published' );
-					} elseif ( 'future' == $post->post_status ) {
-						if ( $time_diff > 0 )
-							echo '<strong class="attention">' . __( 'Missed schedule' ) . '</strong>';
-						else
-							_e( 'Scheduled' );
-					} else {
-						_e( 'Last Modified' );
-					}
-				break;
-
-				case 'comments':
-				?>
-				<div class="post-com-count-wrapper">
-				<?php
-					$pending_comments = isset( $this->comment_pending_count[$post->ID] ) ? $this->comment_pending_count[$post->ID] : 0;
-
-					$this->comments_bubble( $post->ID, $pending_comments );
-				?>
-				</div>
-				<?php
-				break;
-
-				case 'author':
-					printf( '<a href="%s">%s</a>',
-						esc_url( add_query_arg( array( 'post_type' => $post->post_type, 'author' => get_the_author_meta( 'ID' ) ), 'edit.php' )),
-						get_the_author()
-					);
-				break;
-
-				default:
-					if ( 'categories' == $column_name )
-						$taxonomy = 'category';
-					elseif ( 'tags' == $column_name )
-						$taxonomy = 'post_tag';
-					elseif ( 0 === strpos( $column_name, 'taxonomy-' ) )
-						$taxonomy = substr( $column_name, 9 );
-					else
-						$taxonomy = false;
-
-					if ( $taxonomy ) {
-						$taxonomy_object = get_taxonomy( $taxonomy );
-						if ( $terms = get_the_terms( $post->ID, $taxonomy ) ) {
-							$out = array();
-							foreach ( $terms as $t ) {
-								$posts_in_term_qv = array();
-								if ( 'post' != $post->post_type )
-									$posts_in_term_qv['post_type'] = $post->post_type;
-								if ( $taxonomy_object->query_var ) {
-									$posts_in_term_qv[ $taxonomy_object->query_var ] = $t->slug;
-								} else {
-									$posts_in_term_qv['taxonomy'] = $taxonomy;
-									$posts_in_term_qv['term'] = $t->slug;
-								}
-
-								$out[] = sprintf( '<a href="%s">%s</a>',
-									esc_url( add_query_arg( $posts_in_term_qv, 'edit.php' ) ),
-									esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) )
-								);
-							}
-							/* translators: used between list items, there is a space after the comma */
-							echo join( __( ', ' ), $out );
-						} else {
-							echo '&#8212;';
-						}
-						break;
-					}
-
-					if ( is_post_type_hierarchical( $post->post_type ) ) {
-
-						/**
-						 * Fires in each custom column on the Posts list table.
-						 *
-						 * This hook only fires if the current post type is hierarchical,
-						 * such as pages.
-						 *
-						 * @since 2.5.0
-						 *
-						 * @param string $column_name The name of the column to display.
-						 * @param int    $post_id     The current post ID.
-						 */
-						do_action( 'manage_pages_custom_column', $column_name, $post->ID );
-					} else {
-
-						/**
-						 * Fires in each custom column in the Posts list table.
-						 *
-						 * This hook only fires if the current post type is non-hierarchical,
-						 * such as posts.
-						 *
-						 * @since 1.5.0
-						 *
-						 * @param string $column_name The name of the column to display.
-						 * @param int    $post_id     The current post ID.
-						 */
-						do_action( 'manage_posts_custom_column', $column_name, $post->ID );
-					}
-
-					/**
-					 * Fires for each custom column of a specific post type in the Posts list table.
-					 *
-					 * The dynamic portion of the hook name, `$post->post_type`, refers to the post type.
-					 *
-					 * @since 3.1.0
-					 *
-					 * @param string $column_name The name of the column to display.
-					 * @param int    $post_id     The current post ID.
-					 */
-					do_action( "manage_{$post->post_type}_posts_custom_column", $column_name, $post->ID );
-				break;
+				if ( method_exists( $this, 'column_' . $column_name ) ) {
+					call_user_func( array( $this, 'column_' . $column_name ), $item );
+				} else {
+					$this->column_default( $item, $column_name );
 				}
 
-				echo $this->handle_row_actions( $post, $column_name, $primary );
+				echo $this->handle_row_actions( $item, $column_name, $primary );
 				echo '</td>';
 			}
 		}
+	}
+
+	/**
+	 * @global WP_Post $post
+	 *
+	 * @param int|WP_Post $post
+	 * @param int         $level
+	 */
+	public function single_row( $post, $level = 0 ) {
+		$global_post = get_post();
+
+		$post = get_post( $post );
+		$this->current_level = $level;
+
+		$GLOBALS['post'] = $post;
+		setup_postdata( $post );
+
+		$classes = 'iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
+
+		$lock_holder = wp_check_post_lock( $post->ID );
+		if ( $lock_holder ) {
+			$classes .= ' wp-locked';
+		}
+
+		if ( $post->post_parent ) {
+		    $count = count( get_post_ancestors( $post->ID ) );
+		    $classes .= ' level-'. $count;
+		} else {
+		    $classes .= ' level-0';
+		}
 	?>
+		<tr id="post-<?php echo $post->ID; ?>" class="<?php echo implode( ' ', get_post_class( $classes, $post->ID ) ); ?>">
+			<?php $this->single_row_columns( $post ); ?>
 		</tr>
 	<?php
 		$GLOBALS['post'] = $global_post;
@@ -1145,10 +1215,10 @@ class WP_Posts_List_Table extends WP_List_Table {
 	endif; // post_type_supports title ?>
 
 	<?php if ( !$bulk ) : ?>
-			<label><span class="title"><?php _e( 'Date' ); ?></span></label>
-			<div class="inline-edit-date">
+			<fieldset class="inline-edit-date">
+			<legend><span class="title"><?php _e( 'Date' ); ?></span></legend>
 				<?php touch_time( 1, 1, 0, 1 ); ?>
-			</div>
+			</fieldset>
 			<br class="clear" />
 	<?php endif; // $bulk
 
@@ -1463,11 +1533,11 @@ class WP_Posts_List_Table extends WP_List_Table {
 		}
 	?>
 		<p class="submit inline-edit-save">
-			<a href="#inline-edit" class="button-secondary cancel alignleft"><?php _e( 'Cancel' ); ?></a>
+			<button type="button" class="button-secondary cancel alignleft"><?php _e( 'Cancel' ); ?></button>
 			<?php if ( ! $bulk ) {
 				wp_nonce_field( 'inlineeditnonce', '_inline_edit', false );
 				?>
-				<a href="#inline-edit" class="button-primary save alignright"><?php _e( 'Update' ); ?></a>
+				<button type="button" class="button-primary save alignright"><?php _e( 'Update' ); ?></button>
 				<span class="spinner"></span>
 			<?php } else {
 				submit_button( __( 'Update' ), 'button-primary alignright', 'bulk_edit', false );

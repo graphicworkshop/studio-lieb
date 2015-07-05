@@ -2747,15 +2747,19 @@ class wp_xmlrpc_server extends IXR_Server {
 	 * @return array|IXR_Error
 	 */
 	public function wp_editPage( $args ) {
-		// Items not escaped here will be escaped in editPost.
-		$page_id  = (int) $this->escape($args[1]);
-		$username = $this->escape($args[2]);
-		$password = $this->escape($args[3]);
+		// Items will be escaped in mw_editPost.
+		$page_id  = (int) $args[1];
+		$username = $args[2];
+		$password = $args[3];
 		$content  = $args[4];
 		$publish  = $args[5];
 
-		if ( !$user = $this->login($username, $password) )
+		$escaped_username = $this->escape( $username );
+		$escaped_password = $this->escape( $password );
+
+		if ( !$user = $this->login( $escaped_username, $escaped_password ) ) {
 			return $this->error;
+		}
 
 		/** This action is documented in wp-includes/class-wp-xmlrpc-server.php */
 		do_action( 'xmlrpc_call', 'wp.editPage' );
@@ -3254,7 +3258,7 @@ class wp_xmlrpc_server extends IXR_Server {
 
 		$status = wp_delete_comment( $comment_ID );
 
-		if ( true == $status ) {
+		if ( $status ) {
 			/**
 			 * Fires after a comment has been successfully deleted via XML-RPC.
 			 *
@@ -3962,12 +3966,12 @@ class wp_xmlrpc_server extends IXR_Server {
 		/** This action is documented in wp-includes/class-wp-xmlrpc-server.php */
 		do_action( 'xmlrpc_call', 'wp.getPostType' );
 
-		if( ! post_type_exists( $post_type_name ) )
+		if ( ! post_type_exists( $post_type_name ) )
 			return new IXR_Error( 403, __( 'Invalid post type' ) );
 
 		$post_type = get_post_type_object( $post_type_name );
 
-		if( ! current_user_can( $post_type->cap->edit_posts ) )
+		if ( ! current_user_can( $post_type->cap->edit_posts ) )
 			return new IXR_Error( 401, __( 'Sorry, you are not allowed to edit this post type.' ) );
 
 		return $this->_prepare_post_type( $post_type, $fields );
@@ -4019,7 +4023,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		$struct = array();
 
 		foreach( $post_types as $post_type ) {
-			if( ! current_user_can( $post_type->cap->edit_posts ) )
+			if ( ! current_user_can( $post_type->cap->edit_posts ) )
 				continue;
 
 			$struct[$post_type->name] = $this->_prepare_post_type( $post_type, $fields );
@@ -4805,7 +4809,7 @@ class wp_xmlrpc_server extends IXR_Server {
 						$comment_status = 'open';
 						break;
 					default:
-						$comment_status = get_option('default_comment_status');
+						$comment_status = get_default_comment_status( $post_type );
 						break;
 				}
 			} else {
@@ -4818,12 +4822,12 @@ class wp_xmlrpc_server extends IXR_Server {
 						$comment_status = 'open';
 						break;
 					default:
-						$comment_status = get_option('default_comment_status');
+						$comment_status = get_default_comment_status( $post_type );
 						break;
 				}
 			}
 		} else {
-			$comment_status = get_option('default_comment_status');
+			$comment_status = get_default_comment_status( $post_type );
 		}
 
 		if ( isset($content_struct['mt_allow_pings']) ) {
@@ -4836,7 +4840,7 @@ class wp_xmlrpc_server extends IXR_Server {
 						$ping_status = 'open';
 						break;
 					default:
-						$ping_status = get_option('default_ping_status');
+						$ping_status = get_default_comment_status( $post_type, 'pingback' );
 						break;
 				}
 			} else {
@@ -4848,12 +4852,12 @@ class wp_xmlrpc_server extends IXR_Server {
 						$ping_status = 'open';
 						break;
 					default:
-						$ping_status = get_option('default_ping_status');
+						$ping_status = get_default_comment_status( $post_type, 'pingback' );
 						break;
 				}
 			}
 		} else {
-			$ping_status = get_option('default_ping_status');
+			$ping_status = get_default_comment_status( $post_type, 'pingback' );
 		}
 
 		if ( $post_more )
@@ -5116,7 +5120,7 @@ class wp_xmlrpc_server extends IXR_Server {
 						$comment_status = 'open';
 						break;
 					default:
-						$comment_status = get_option('default_comment_status');
+						$comment_status = get_default_comment_status( $post_type );
 						break;
 				}
 			} else {
@@ -5129,7 +5133,7 @@ class wp_xmlrpc_server extends IXR_Server {
 						$comment_status = 'open';
 						break;
 					default:
-						$comment_status = get_option('default_comment_status');
+						$comment_status = get_default_comment_status( $post_type );
 						break;
 				}
 			}
@@ -5145,7 +5149,7 @@ class wp_xmlrpc_server extends IXR_Server {
 						$ping_status = 'open';
 						break;
 					default:
-						$ping_status = get_option('default_ping_status');
+						$ping_status = get_default_comment_status( $post_type, 'pingback' );
 						break;
 				}
 			} else {
@@ -5157,7 +5161,7 @@ class wp_xmlrpc_server extends IXR_Server {
 						$ping_status = 'open';
 						break;
 					default:
-						$ping_status = get_option('default_ping_status');
+						$ping_status = get_default_comment_status( $post_type, 'pingback' );
 						break;
 				}
 			}

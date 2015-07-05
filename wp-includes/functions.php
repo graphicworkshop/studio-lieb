@@ -1484,7 +1484,7 @@ function wp_mkdir_p( $target ) {
 	$wrapper = null;
 
 	// Strip the protocol.
-	if( wp_is_stream( $target ) ) {
+	if ( wp_is_stream( $target ) ) {
 		list( $wrapper, $target ) = explode( '://', $target, 2 );
 	}
 
@@ -1492,7 +1492,7 @@ function wp_mkdir_p( $target ) {
 	$target = str_replace( '//', '/', $target );
 
 	// Put the wrapper back on the target.
-	if( $wrapper !== null ) {
+	if ( $wrapper !== null ) {
 		$target = $wrapper . '://' . $target;
 	}
 
@@ -3416,6 +3416,52 @@ function _deprecated_function( $function, $version, $replacement = null ) {
 }
 
 /**
+ * Marks a constructor as deprecated and informs when it has been used.
+ *
+ * Similar to _deprecated_function(), but with different strings. Used to
+ * remove PHP4 style constructors.
+ *
+ * The current behavior is to trigger a user error if WP_DEBUG is true.
+ *
+ * This function is to be used in every PHP4 style constructor method that is deprecated.
+ *
+ * @since 4.3.0
+ *
+ * @access private
+ *
+ * @param string $class   The class containing the deprecated constructor.
+ * @param string $version The version of WordPress that deprecated the function.
+ */
+function _deprecated_constructor( $class, $version ) {
+
+	/**
+	 * Fires when a deprecated constructor is called.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string $class   The class containing the deprecated constructor.
+	 * @param string $version The version of WordPress that deprecated the function.
+	 */
+	do_action( 'deprecated_constructor_run', $class, $version );
+
+	/**
+	 * Filter whether to trigger an error for deprecated functions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param bool $trigger Whether to trigger the error for deprecated functions. Default true.
+	 */
+	if ( WP_DEBUG && apply_filters( 'deprecated_constructor_trigger_error', true ) ) {
+		if ( function_exists( '__' ) ) {
+			trigger_error( sprintf( __( 'The called constructor method for %1$s is <strong>deprecated</strong> since version %2$s! Use %3$s instead.' ), $class, $version, '<pre>__construct()</pre>' ) );
+		} else {
+			trigger_error( sprintf( 'The called constructor method for %1$s is <strong>deprecated</strong> since version %2$s! Use %3$s instead.', $class, $version, '<pre>__construct()</pre>' ) );
+		}
+	}
+
+}
+
+/**
  * Mark a file as deprecated and inform when it has been used.
  *
  * There is a hook deprecated_file_included that will be called that can be used
@@ -3873,38 +3919,63 @@ function is_main_site( $site_id = null ) {
  *
  * @since 3.7.0
  *
- * @global wpdb $wpdb
- *
  * @param int $network_id Optional. Network ID to test. Defaults to current network.
  * @return bool True if $network_id is the main network, or if not running Multisite.
  */
 function is_main_network( $network_id = null ) {
-	global $wpdb;
-
-	if ( ! is_multisite() )
+	if ( ! is_multisite() ) {
 		return true;
+	}
 
 	$current_network_id = (int) get_current_site()->id;
 
-	if ( ! $network_id )
+	if ( null === $network_id ) {
 		$network_id = $current_network_id;
+	}
+
 	$network_id = (int) $network_id;
 
-	if ( defined( 'PRIMARY_NETWORK_ID' ) )
-		return $network_id === (int) PRIMARY_NETWORK_ID;
+	return ( $network_id === get_main_network_id() );
+}
 
-	if ( 1 === $current_network_id )
-		return $network_id === $current_network_id;
+/**
+ * Get the main network ID.
+ *
+ * @since 4.3.0
+ *
+ * @global wpdb $wpdb
+ *
+ * @return int The ID of the main network.
+ */
+function get_main_network_id() {
+	global $wpdb;
 
-	$primary_network_id = (int) wp_cache_get( 'primary_network_id', 'site-options' );
+	if ( ! is_multisite() ) {
+		return 1;
+	}
 
-	if ( $primary_network_id )
-		return $network_id === $primary_network_id;
+	if ( defined( 'PRIMARY_NETWORK_ID' ) ) {
+		$main_network_id = PRIMARY_NETWORK_ID;
+	} elseif ( 1 === (int) get_current_site()->id ) {
+		// If the current network has an ID of 1, assume it is the main network.
+		$main_network_id = 1;
+	} else {
+		$main_network_id = wp_cache_get( 'primary_network_id', 'site-options' );
 
-	$primary_network_id = (int) $wpdb->get_var( "SELECT id FROM $wpdb->site ORDER BY id LIMIT 1" );
-	wp_cache_add( 'primary_network_id', $primary_network_id, 'site-options' );
+		if ( false === $main_network_id ) {
+			$main_network_id = (int) $wpdb->get_var( "SELECT id FROM {$wpdb->site} ORDER BY id LIMIT 1" );
+			wp_cache_add( 'primary_network_id', $main_network_id, 'site-options' );
+		}
+	}
 
-	return $network_id === $primary_network_id;
+	/**
+	 * Filter the main network ID.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param int $main_network_id The ID of the main network.
+	 */
+	return (int) apply_filters( 'get_main_network_id', $main_network_id );
 }
 
 /**
@@ -4480,7 +4551,9 @@ function send_frame_options_header() {
  *
  * @staticvar array $protocols
  *
- * @return array Array of allowed protocols.
+ * @return array Array of allowed protocols. Defaults to an array containing 'http', 'https',
+ *               'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet',
+ *               'mms', 'rtsp', 'svn', 'tel', 'fax', 'xmpp', and 'webcal'.
  */
 function wp_allowed_protocols() {
 	static $protocols = array();
@@ -4581,7 +4654,7 @@ function _get_non_cached_ids( $object_ids, $cache_key ) {
  * @since 3.4.0
  * @access private
  *
- * @return bool true|false Whether the device is able to upload files.
+ * @return bool Whether the device is able to upload files.
  */
 function _device_can_upload() {
 	if ( ! wp_is_mobile() )
@@ -4886,4 +4959,37 @@ function wp_delete_file( $file ) {
 	if ( ! empty( $delete ) ) {
 		@unlink( $delete );
 	}
+}
+
+/**
+ * Outputs a small JS snippet on preview tabs/windows to remove `window.name` on unload.
+ * This prevents reusing the same tab for a preview when the user has navigated away.
+ *
+ * @since 4.3.0
+ */
+function wp_post_preview_js() {
+	global $post;
+
+	if ( ! is_preview() || empty( $post ) ) {
+		return;
+	}
+
+	// Has to match the window name used in post_submit_meta_box()
+	$name = 'wp-preview-' . (int) $post->ID;
+
+	?>
+	<script>
+	( function() {
+		var query = document.location.search;
+
+		if ( query && query.indexOf( 'preview=true' ) !== -1 ) {
+			window.name = '<?php echo $name; ?>';
+		}
+
+		if ( window.addEventListener ) {
+			window.addEventListener( 'unload', function() { window.name = ''; }, false );
+		}
+	}());
+	</script>
+	<?php
 }
