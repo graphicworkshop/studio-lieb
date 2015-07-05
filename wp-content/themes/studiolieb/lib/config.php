@@ -51,7 +51,8 @@ function roots_display_sidebar() {
 
       ['is_page_template', 'template-landing-page.php'],
       ['is_singular', 'portfolio'],
-      ['is_archive', 'prestations']
+      ['is_archive', 'prestations'],
+      ['is_page', 'prestations']
 
       ),
     /**
