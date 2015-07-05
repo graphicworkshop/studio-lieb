@@ -45,7 +45,7 @@ function roots_gallery($attr) {
     'include'    => '',
     'exclude'    => '',
     'link'       => ''
-  ), $attr));
+    ), $attr));
 
   $id = intval($id);
   $columns = (12 % $columns == 0) ? $columns: 4;
@@ -87,14 +87,14 @@ function roots_gallery($attr) {
   foreach ($attachments as $id => $attachment) {
     switch($link) {
       case 'file':
-        $image = wp_get_attachment_link($id, $size, false, false);
-        break;
+      $image = wp_get_attachment_link($id, $size, false, false);
+      break;
       case 'none':
-        $image = wp_get_attachment_image($id, $size, false, array('class' => 'thumbnail img-thumbnail'));
-        break;
+      $image = wp_get_attachment_image($id, $size, false, array('class' => 'thumbnail img-thumbnail'));
+      break;
       default:
-        $image = wp_get_attachment_link($id, $size, true, false);
-        break;
+      $image = wp_get_attachment_link($id, $size, true, false);
+      break;
     }
     $output .= ($i % $columns == 0) ? '<div class="row gallery-row">': '';
     $output .= '<div class="' . $grid .'">' . $image;
