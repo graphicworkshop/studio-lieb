@@ -34,7 +34,17 @@ var Roots = {
                nav_bar = $(".navbar"),
                navbar_fixed_top = $(".navbar-fixed-top");
 
-/*  ==================================================
+               //jQuery to collapse the navbar on scroll
+                _window.scroll(function () 
+                {
+                  if (nav_bar.offset().top > 50) {
+                    navbar_fixed_top.addClass("top-nav-collapse");
+                  } else {
+                    navbar_fixed_top.removeClass("top-nav-collapse");
+                  }
+                });
+
+              /*  ==================================================
               # Initialize all the reloadable JavaScript
               ================================================== */
               if (!Modernizr.touch)

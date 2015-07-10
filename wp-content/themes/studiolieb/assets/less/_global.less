@@ -1,5 +1,30 @@
-  body:not(home) {
-    padding-top: 100px;
+  body:not(.home),   body:not(.archive) {
+
+    .banner {
+      //box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.16);
+      background:rgba(255,255,255,0.8);
+    }
+
+    .page-header {
+      border:none;
+      text-align:left;
+      margin:0;
+      
+      #page-header-bg {
+       padding-top:105px;
+       background-image: url("http://www.studio-lieb.com/wp-content/themes/studiolieb/assets/img/visuals-prestations.jpg"); 
+       height: 400px;
+       top: 0px;
+       opacity: 1;
+       overflow: visible; 
+       transform: translate(0px, 0px); 
+       display: block;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        background-position:0 -320px;
+      }
+    }
   }
 
   h1 {
@@ -21,6 +46,8 @@
     text-transform: uppercase;
     .text-center;
   }
+
+
 
   h3 {
     font-family: @headings-font-family;
