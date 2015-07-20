@@ -6,14 +6,17 @@
   .effects{
     background:transparent;
 
-    #filters{
+    #filters{ 
+      background:#353738;
+      padding:10px 0;
       text-align: center;
+      .font-size(1.6);
+      font-weight:400;
       button{
+        .btn;
         background:transparent;
+        color:@light;
         border: none;
-        text-transform: uppercase;
-        color:@brand-gray;
-        padding: 10px 20px;
         &:focus{
           outline: none;
         }
@@ -24,20 +27,105 @@
     }
 
 
-    .grid-item{
+    /*.grid-item{
       margin-top: 50px;
+    }*/
+
+
+/* ---- .element-item ---- */
+
+/* 5 columns, percentage width */
+.grid-item,
+.grid-sizer {
+  width: 25%;
+
+  .img { 
+    position: relative;
+    img { 
+      display: block;
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+      height: auto; 
     }
+
+
+
+  }
+
+}
+
+
+
+.grid-item {
+  float: left;
+  /*height: 100px;
+  background: #0D8;
+  border: 2px solid #333;
+  border-color: hsla(0, 0%, 0%, 0.7);*/
+}
+/*
+.grid-item--width2 { width: 40%; }
+.grid-item.portrait { height: 200px !important }*/
+
+
   }
 }
 
+.grid-item {
+  float: left;
+  width: 400px;
+  height: 260px;
+}
+
+.grid-item--width2 { width: 200px; }
+.grid-item--portrait { height: 520px; }
 
 
 /*
-* single-portfolio
+* SINGLE PORTFOLIO
 */
 
-.single-portfolio{
-  .popup-gallery{
-    margin-top:50px;
+#portfolio-nav {
+  top: 10px;
+  position: absolute;
+  height: 100%;
+  right: 0px;
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  ul {
+    left: 0px;
+    right: auto;
+    top: 50%;
+    margin-top: -10px;
+    float: none;
+    position: absolute;
+    li {
+      float:  left;
+      list-style: none;
+      padding: 0;
+      margin:0;
+    }
+    .prev-link a, .next-link a {
+      color: #888 !important;
+      cursor: pointer;
+      display: inline-block;
+      float: left;
+      margin: 0px 10px 0px 0px;
+      position: relative;
+      text-transform: capitalize;
+      background-repeat: no-repeat;
+      transition: all 0.2s linear 0s;
+      text-align: center;
+    }
   }
+  ul.controls {
+    float: right;
+    right: 0px;
+    left: auto;
+  }
+
+  
 }
+

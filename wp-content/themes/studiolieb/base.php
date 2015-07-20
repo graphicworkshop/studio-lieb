@@ -12,10 +12,12 @@
     get_template_part('templates/header');
     ?>
     <?php get_template_part('templates/page', 'header'); ?>
-    <div class="wrap" role="document">
-      <div class="content row">
+    <div class="wrap container-fluid" role="document">
+    <div class="content row">
+      
         <main class="main" role="main">
           <?php include roots_template_path(); ?>
+        </main><!-- /.main -->
         </main><!-- /.main -->
         <?php if (roots_display_sidebar()) : ?>
           <aside class="sidebar" role="complementary">

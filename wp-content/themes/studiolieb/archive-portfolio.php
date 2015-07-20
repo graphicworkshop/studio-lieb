@@ -1,4 +1,3 @@
-<?php get_template_part('templates/page', 'header'); ?>
 <div id="effect" class="effects">
     <?php
     $prestations = (get_terms('prestation'));
@@ -15,27 +14,50 @@
         </div>
         <?php } ?>
 
-        <div class="row grid-item" id="list-isotope">
+        <div id="list-isotope">
+            <div class="grid-sizer"></div>
+            <div class="gutter-sizer"></div>
+
+            <?php $posts = query_posts($query_string . '&orderby=menu_order&order=asc&posts_per_page=-1'); ?>
+
             <?php while (have_posts()) : the_post(); ?>
-                <div class="img grid item<?php
+
+                <?php 
+
+                /* Get Thumbnail ID */
+                $post_thumbnail_id = get_post_thumbnail_id( $post_id ); 
+
+                /* Get Image Meta */
+                $image_meta = get_post_meta($post_thumbnail_id,'_wp_attachment_metadata',TRUE);
+
+                /* Check Orientation ( Portrait / Landscape ) */
+                $orientation = $image_meta['height'] > $image_meta['width'] ? 'grid-item--portrait' : 'landscape';
+
+
                 if (wp_get_post_terms(get_the_ID(), 'prestation')) {
 
+                    
                     $prestations = wp_get_post_terms(get_the_ID(), 'prestation');
-                    $liste_presta ='';
+                    
+                    $class ='';
 
                     foreach ($prestations as $prestation) {
-                        $liste_presta = $liste_presta . ' ' . $prestation->slug;
+                        $class = $liste_presta . ' ' . $prestation->slug;
                     }
 
-                    echo $liste_presta.'"';
-               // echo ' data-category="'.$liste_presta;
-
                 }
-                ?>">
+
+                ?>
+
+                <div class="img grid-item item <?php echo $class ?> <?php echo $orientation ?>" data-category="<?php echo $class ?>">
+
+
                 <?php
-            //echo '<a href="' . get_the_permalink() . '">';
-                the_post_thumbnail('medium', array( 'class' => '' ));
-            //echo '</a>';
+                //echo '<a href="' . get_the_permalink() . '">';
+
+
+                the_post_thumbnail('large', array( 'class' => 'img-responsive' ));
+                //echo '</a>';
                 //echo 'Terms : '.wp_get_post_terms();
                 //var_dump(wp_get_post_terms(get_the_ID(), 'prestation'));
                 echo '<div class="overlay"><a href="' . get_the_permalink() . '" class="expand">' . get_the_title() . '</a></div>';

@@ -77,19 +77,19 @@ var Roots = {
                          }
                      });
                  });
-}
-else
-{
- $(".animated").each(function ()
- {
-     $(this).removeClass("animated no-opacity");
- });
-}
+              }
+              else
+              {
+               $(".animated").each(function ()
+               {
+                   $(this).removeClass("animated no-opacity");
+               });
+              }
 
 
 
 
-/*  ==================================================
+              /*  ==================================================
                # Overlay
                /* ================================================== */
                if (Modernizr.touch) {
@@ -127,57 +127,58 @@ else
       },
 
 
+      single_portfolio: {
+          init: function () {
+            // translate magnific popup
+              $.extend(true, $.magnificPopup.defaults, {
+                tClose: 'Fermer (Echap)', // Alt text on close button
+                tLoading: 'Chargement...', // Text that is displayed during loading. Can contain %curr% and %total% keys
+                gallery: {
+                tPrev: 'Précédent (Flèche gauche)', // Alt text on left arrow
+                tNext: 'Suivant (Flèche droite)', // Alt text on right arrow
+                tCounter: '%curr% sur %total%' // Markup for "1 of 7" counter
+              },
+              image: {
+                tError: '<a href="%url%">L\'image</a> n\'a pas pu être chargée.' // Error message when image could not be loaded
+              },
+              ajax: {
+                tError: '<a href="%url%">Le contenu</a> n\'a pas pu être chargé.' // Error message when ajax request failed
+              }
+            });
 
-
-
-      'single_portfolio': {
-        init: function () {
-                // translate magnific popup
-                $.extend(true, $.magnificPopup.defaults, {
-  tClose: 'Fermer (Echap)', // Alt text on close button
-  tLoading: 'Chargement...', // Text that is displayed during loading. Can contain %curr% and %total% keys
-  gallery: {
-    tPrev: 'Précédent (Flèche gauche)', // Alt text on left arrow
-    tNext: 'Suivant (Flèche droite)', // Alt text on right arrow
-    tCounter: '%curr% sur %total%' // Markup for "1 of 7" counter
-},
-image: {
-    tError: '<a href="%url%">L\'image</a> n\'a pas pu être chargée.' // Error message when image could not be loaded
-},
-ajax: {
-    tError: '<a href="%url%">Le contenu</a> n\'a pas pu être chargé.' // Error message when ajax request failed
-}
-});
-
-                $('.popup-gallery').magnificPopup({
-                    delegate: 'a',
-                    type: 'image',
-                    tLoading: 'Chargement',
-                    mainClass: 'mfp-img-mobile',
-                    gallery: {
-                        enabled: true,
-                        navigateByImgClick: true,
-                        preload: [0, 1] // Will preload 0 - before current, and 1 after the current image
-                    },
-                    image: {
-                        tError: 'L\'image n\'a pas pu être chargée'
-                    }
-                });
-            }
+            $('.popup-gallery').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Chargement',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                  enabled: true,
+                  navigateByImgClick: true,
+                preload: [0, 1] // Will preload 0 - before current, and 1 after the current image
+              },
+              image: {
+                tError: 'L\'image n\'a pas pu être chargée'
+              }
+            });
+          }
         },
-        archive_portfolio    : {
-            init: function ()
-            {
-                var $grid = $('.grid').isotope({
-  // main isotope options
-  itemSelector: '.grid-item',
-  // options for masonry layout mode
-  masonry: {
-    columnWidth: '.grid-sizer',
-}
-});
-            }
-        },
+
+
+        // Portfolio
+       /* archive_portfolio    : {
+          init: function ()
+          {
+            var $grid = $('.grid').isotope({
+              // main isotope options
+              itemSelector: '.grid-item',
+              // options for masonry layout mode
+              masonry: {
+                columnWidth: '.grid-sizer',
+              }
+            });
+          }
+        },*/
+
         // Home page
         home    : {
             init: function ()
@@ -202,16 +203,24 @@ ajax: {
              }
 
          },
-         'post_type_archive_portfolio': {
+         
+         post_type_archive_portfolio  : {
             init: function () {
                 /*
                  * ISOTOPE
                  */
 
+
                 var $container = $('#list-isotope'); //The ID for the list with all the blog posts
+
                 $container.isotope({ //Isotope options, 'item' matches the class in the PHP
-                    itemSelector: '.item',
-                    layoutMode: 'masonry'
+                    itemSelector: '.grid-item',
+                    percentPosition: true,
+                    sortBy : '*',
+                    masonry: {
+                      // use outer width of grid-sizer for columnWidth
+                      columnWidth: '.grid-sizer'
+                    }
                 });
 
                 //Add the class selected to the item that is clicked, and remove from the others
