@@ -1,24 +1,20 @@
-<?php get_template_part('templates/content', 'single'); ?>
-
-<?php 
-if (get_field('galerie_portfolio')){
-	?>
-
-	<div class="popup-gallery row">
+<?php if ( get_field('galerie_portfolio') ) { ?> 
+	<div class="popup-gallery grid masonry effects" id="effect">
+		<div class="grid-sizer"></div>
 		<?php
-                //Affiche une galerie photo
+		//Affiche une galerie photo
 		$imgs = get_field('galerie_portfolio');
 		if ($imgs) {
 			foreach ($imgs as $img) {
-				echo '<a href="' . $img['url'] . '" class="col-sm-4">
-				<img src="' . $img['sizes']['medium'] . '"
-				class="img-responsive" alt="' . $img['alt'] . '">
-			</a>';
+				echo '<div class="grid-item img">
+				<img src="' . $img['sizes']['portfolio_thumb'] . '" class="img-responsive" alt="' . $img['alt'] . '">
+					<div class="overlay">
+						<a href="' . $img['url'] . '" class="expand">Lorem ipsum</a>
+					</div>
+				</div>';
+			}
 		}
-	}
-	?>
-
-</div>
+		?>
+	</div>
 <?php 
 }
-?>

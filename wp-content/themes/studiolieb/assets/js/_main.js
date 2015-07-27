@@ -129,6 +129,14 @@ var Roots = {
 
       single_portfolio: {
           init: function () {
+
+              $('.grid').masonry({
+                // set itemSelector so .grid-sizer is not used in layout
+                itemSelector: '.grid-item',
+                // use element for option
+                columnWidth: '.grid-sizer',
+                percentPosition: true
+              })
             // translate magnific popup
               $.extend(true, $.magnificPopup.defaults, {
                 tClose: 'Fermer (Echap)', // Alt text on close button
@@ -159,6 +167,15 @@ var Roots = {
               image: {
                 tError: 'L\'image n\'a pas pu être chargée'
               }
+            });
+
+            $(".effects .img").click(function(e) {
+                //e.preventDefault();
+                //e.stopPropagation();
+                //alert('click');
+                $(this).children(".overlay a").click();
+                //$(this).(".overlay > a").trigger( "click" );
+                //return false; // Prevent event propagation and infinite loops
             });
           }
         },

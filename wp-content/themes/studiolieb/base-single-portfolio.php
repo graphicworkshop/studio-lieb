@@ -11,6 +11,7 @@
     do_action('get_header');
     get_template_part('templates/header');
     ?>
+    
     <section id="project-title" class="container-fluid page-header">
       <div class="container">
         <div class="row">
@@ -25,8 +26,8 @@
 
               <ul class="controls">  
                 <?php while (have_posts()) : the_post(); ?>
-                  <li class="prev-link" rel="prev"><?php previous_post_link('%link', '<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>') ?></li>
-                  <li class="next-link" rel="next"><?php next_post_link('%link', '<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span>') ?><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></li>
+                  <li class="prev-link" rel="prev"><?php previous_post_link('%link', '<span class="glyphicon icomoon icon-previous" aria-hidden="true"></span>') ?></li>
+                  <li class="next-link" rel="next"><?php next_post_link('%link', '<span class="icomoon icon-next" aria-hidden="true"></span>') ?></li>
                 <?php endwhile; ?>
               </ul>
             </div>
@@ -34,18 +35,21 @@
         </div>
       </div>
     </section>
-    <div class="wrap container" role="document">
-      <div class="content row">
 
-        <main class="main" role="main">
-          <?php include roots_template_path(); ?>
-        </main><!-- /.main -->
-        <?php if (roots_display_sidebar()) : ?>
+    <div class="wrap container-fluid" role="document">
+      <div class="container">
+        <div class="content row">
+
+          <main class="main" role="main">
+            <?php include roots_template_path(); ?>
+          </main><!-- /.main -->
+
           <aside class="sidebar" role="complementary">
-            <?php include roots_sidebar_path(); ?>
+            <?php get_template_part('templates/content', 'single'); ?>
           </aside><!-- /.sidebar -->
-        <?php endif; ?>
-      </div><!-- /.content -->
+        
+        </div><!-- /.content -->
+      </div>
     </div><!-- /.wrap -->
 
     <?php get_template_part('templates/footer'); ?>
