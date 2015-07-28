@@ -31,7 +31,7 @@
 		text-transform:none;
 	}
 	p {
-		.font-size(2.4);
+		.font-size(2);
 		font-weight:300;
 		margin-top:0;
 	}
@@ -54,6 +54,12 @@
 	}
 
 	.iwithtext {
+		&:hover {
+			[class^="icon-"], [class*=" icon-"] {
+				.font-size(5);
+			
+			}
+		}
 
 	}
 
@@ -72,7 +78,7 @@
 			margin-top:5px;
 		}
 		h4 {
-			text-transform:uppercase;
+			/*text-transform:uppercase;*/
 		}
 	}
 }

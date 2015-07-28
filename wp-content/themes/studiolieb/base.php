@@ -13,19 +13,24 @@
     ?>
     <?php get_template_part('templates/page', 'header'); ?>
     <div class="wrap container-fluid" role="document">
-    <div class="content row">
-      
+
+      <div class="container">
+
+
+      <div class="content row">
+
         <main class="main" role="main">
           <?php include roots_template_path(); ?>
-        </main><!-- /.main -->
-        </main><!-- /.main -->
+        </main>
+
         <?php if (roots_display_sidebar()) : ?>
           <aside class="sidebar" role="complementary">
             <?php include roots_sidebar_path(); ?>
-          </aside><!-- /.sidebar -->
+          </aside>
         <?php endif; ?>
-      </div><!-- /.content -->
-    </div><!-- /.wrap -->
+      </div>
+      </div>
+    </div>
 
     <?php get_template_part('templates/footer'); ?>
 
