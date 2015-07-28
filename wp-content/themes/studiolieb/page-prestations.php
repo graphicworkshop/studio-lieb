@@ -1,18 +1,21 @@
-<?php while (have_posts()) :
+﻿<?php while (have_posts()) :
 the_post(); ?>
 
 
 <div class="container">
   <div class="row">
 
-    <div class="col-sm-8 col-offset-sm-4 headline">
-      <h2>Lorem ipsum dolor sit amet, consectetur adipisicing elit sed do eiusmod</h2>
 
-      <p>Cras ut ex lobortis, elementum urna ac, interdum leo. Praesent sit amet purus vitae elit ultrices pulvinar.
-        Ut id massa risus. Sed tristique faucibus nulla vitae porttitor.</p>
+    <div class="col-sm-8 col-offset-sm-2 headline text-left">
+      <h2>Photographe et vidéaste professionnel</h2>
 
-      <p>Laoreet eu vivamus venenatis nulla. Hendrerit adipiscing pede eu enim natoque id aenean dui. Quis in nec amet
-        rutrum nam ante aliquet adipiscing.</p>
+      <p>Spécialiste des prises de vues industrielles, commerciales ou publicitaires, je suis en mesure de réaliser des photos pour vos packshots, vos plaquettes d'entreprises ou
+      vos fiches techniques produits. Je peux également réaliser et monter des reportages industriels pour présenter en détail votre entreprise et l'ensemble de ses
+      services.</p>
+
+      <p>Je propose également des prestations sur-mesure pour les particuliers : portraits, naisssance, mariages...</p>
+
+
     </div>
   </div>
 
