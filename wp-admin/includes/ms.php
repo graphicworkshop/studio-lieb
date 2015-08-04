@@ -190,6 +190,13 @@ function wpmu_delete_user( $id ) {
 
 	if ( !$user->exists() )
 		return false;
+
+	// Global super-administrators are protected, and cannot be deleted.
+	$_super_admins = get_super_admins();
+	if ( in_array( $user->user_login, $_super_admins, true ) ) {
+		return false;
+	}
+
 	/**
 	 * Fires before a user is deleted from the network.
 	 *
@@ -291,6 +298,7 @@ All at ###SITENAME###
 	 */
 	$content = apply_filters( 'new_admin_email_content', $email_text, $new_admin_email );
 
+	$current_user = wp_get_current_user();
 	$content = str_replace( '###USERNAME###', $current_user->user_login, $content );
 	$content = str_replace( '###ADMIN_URL###', esc_url( admin_url( 'options.php?adminhash='.$hash ) ), $content );
 	$content = str_replace( '###EMAIL###', $value, $content );

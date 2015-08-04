@@ -203,9 +203,6 @@ add_filter( 'title_save_pre',           'trim'                                );
 
 add_filter( 'http_request_host_is_external', 'allowed_http_request_hosts', 10, 2 );
 
-// Prepare the content for the Visual or Text editor
-add_filter( 'the_editor_content', 'format_for_editor', 10, 2 );
-
 // Actions
 add_action( 'wp_head',             '_wp_render_title_tag',            1     );
 add_action( 'wp_head',             'wp_enqueue_scripts',              1     );
@@ -338,7 +335,6 @@ add_action( 'split_shared_term', '_wp_check_split_terms_in_menus', 10, 4 );
  * Filters formerly mixed into wp-includes
  */
 // Theme
-add_action( 'setup_theme', 'preview_theme' );
 add_action( 'wp_loaded', '_custom_header_background_just_in_time' );
 add_action( 'plugins_loaded', '_wp_customize_include' );
 add_action( 'admin_enqueue_scripts', '_wp_customize_loader_settings' );

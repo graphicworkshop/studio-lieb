@@ -6,7 +6,7 @@
  * replace the dash with an underscore when adding it to the object below.
  *
  * .noConflict()
- * The routing is enclosed within an anonymous function so that you can 
+ * The routing is enclosed within an anonymous function so that you can
  * always reference jQuery with $, even when in .noConflict() mode.
  *
  * Google CDN, Latest jQuery
@@ -16,7 +16,7 @@
  (function ($)
  {
 
-// Use this variable to set up the common and page specific functions. If you 
+// Use this variable to set up the common and page specific functions. If you
 // rename this variable, you will also need to rename the namespace below.
 var Roots = {
         // All pages
@@ -35,7 +35,7 @@ var Roots = {
                navbar_fixed_top = $(".navbar-fixed-top");
 
                //jQuery to collapse the navbar on scroll
-                _window.scroll(function () 
+                _window.scroll(function ()
                 {
                   if (nav_bar.offset().top > 50) {
                     navbar_fixed_top.addClass("top-nav-collapse");
@@ -121,7 +121,7 @@ var Roots = {
                       $(this).removeClass("hover");
                   });
               }
-              
+
           }
 
       },
@@ -136,7 +136,7 @@ var Roots = {
                 // use element for option
                 columnWidth: '.grid-sizer',
                 percentPosition: true
-              })
+              });
             // translate magnific popup
               $.extend(true, $.magnificPopup.defaults, {
                 tClose: 'Fermer (Echap)', // Alt text on close button
@@ -220,7 +220,7 @@ var Roots = {
              }
 
          },
-         
+
          post_type_archive_portfolio  : {
             init: function () {
                 /*

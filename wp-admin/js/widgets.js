@@ -128,7 +128,7 @@ wpWidgets = {
 		 * Opens and closes previously closed Sidebars when Widgets are dragged over/out of them.
 		 */
 		sidebars.droppable( {
-			tolerance: 'pointer',
+			tolerance: 'intersect',
 
 			/**
 			 * Open Sidebar when a Widget gets dragged over it.
@@ -147,6 +147,8 @@ wpWidgets = {
 					wpWidgets.hoveredSidebar = $wrap;
 					$wrap.removeClass( 'closed' );
 				}
+
+				$( this ).sortable( 'refresh' );
 			},
 
 			/**
@@ -169,6 +171,7 @@ wpWidgets = {
 			distance: 2,
 			containment: '#wpwrap',
 			tolerance: 'pointer',
+			refreshPositions: true,
 			start: function( event, ui ) {
 				var height, $this = $(this),
 					$wrap = $this.parent(),

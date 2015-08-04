@@ -166,10 +166,10 @@ do_action( 'customize_controls_print_scripts' );
 		</div>
 
 		<div id="customize-footer-actions" class="wp-full-overlay-footer">
-			<a href="#" class="collapse-sidebar button-secondary" title="<?php esc_attr_e('Collapse Sidebar'); ?>">
+			<button type="button" class="collapse-sidebar button-secondary" aria-expanded="true" aria-label="<?php esc_attr_e( 'Collapse Sidebar' ); ?>">
 				<span class="collapse-sidebar-arrow"></span>
-				<span class="collapse-sidebar-label"><?php _e('Collapse'); ?></span>
-			</a>
+				<span class="collapse-sidebar-label"><?php _e( 'Collapse' ); ?></span>
+			</button>
 		</div>
 	</form>
 	<div id="customize-preview" class="wp-full-overlay-main"></div>
@@ -213,14 +213,6 @@ do_action( 'customize_controls_print_scripts' );
 	 */
 	$allowed_urls = array_unique( apply_filters( 'customize_allowed_urls', $allowed_urls ) );
 
-	$fallback_url = add_query_arg( array(
-		'preview'        => 1,
-		'template'       => $wp_customize->get_template(),
-		'stylesheet'     => $wp_customize->get_stylesheet(),
-		'preview_iframe' => true,
-		'TB_iframe'      => 'true'
-	), home_url( '/' ) );
-
 	$login_url = add_query_arg( array(
 		'interim-login' => 1,
 		'customize-login' => 1
@@ -239,7 +231,6 @@ do_action( 'customize_controls_print_scripts' );
 			'ajax'          => esc_url_raw( admin_url( 'admin-ajax.php', 'relative' ) ),
 			'allowed'       => array_map( 'esc_url_raw', $allowed_urls ),
 			'isCrossDomain' => $cross_domain,
-			'fallback'      => esc_url_raw( $fallback_url ),
 			'home'          => esc_url_raw( home_url( '/' ) ),
 			'login'         => esc_url_raw( $login_url ),
 		),
