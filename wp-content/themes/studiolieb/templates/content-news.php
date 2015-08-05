@@ -3,8 +3,8 @@
 <?php
 
 $args = array(
-	'post_type' => 'post'
-	);
+  'post_type' => 'post'
+);
 
 $news_query = new WP_Query($args);
 
@@ -12,59 +12,55 @@ $news_query = new WP_Query($args);
 
 <section class="container" id="news">
 
-	<div class="content row">
+  <div class="content row">
 
-		<div class="col-md-12 animated" data-animation="fadeInDown" data-animation-delay="0.8s">
-			<h3>Les dernières actualités</h3>
-			<div class="thin-sep"></div>
-		</div>
+    <div class="col-md-12 animated" data-animation="fadeInDown" data-animation-delay="0.8s">
+      <h3>Les dernières actualités</h3>
 
-		<main class="col-md-12">
+      <div class="thin-sep"></div>
+    </div>
 
-			<?php if ($news_query->have_posts())
-			{
-				?>
+    <main class="col-md-12">
 
-				<div id="slider-news" class="owl-carousel owl-theme">
+      <?php if ($news_query->have_posts()) {
+        ?>
 
-					<?php
+        <div id="slider-news" class="owl-carousel owl-theme">
 
-					while ($news_query->have_posts())
-					{
+          <?php
 
-						$news_query->the_post();
+          while ($news_query->have_posts()) {
 
-						?>
+            $news_query->the_post();
 
-						<div class="item">
+            ?>
 
-							<article class="hentry col-md-10 col-md-offset-1">
+            <div class="item">
 
-								<header class="entry-meta">
-									<h4 class="entry-title"><?php the_title(); ?></h4>
-									<?php get_template_part('templates/entry-meta'); ?>
-								</header>
+              <article class="hentry col-md-10 col-md-offset-1">
 
-								<div class="entry-content"><?php the_excerpt(); ?></div>
+                <header class="entry-meta">
+                  <h4 class="entry-title"><?php the_title(); ?></h4>
+                  <?php get_template_part('templates/entry-meta'); ?>
+                </header>
 
-							</article>
+                <div class="entry-content"><?php the_excerpt(); ?></div>
 
-						</div>
+              </article>
 
+            </div>
 
-					<?php 
-					} 
-					?>
+          <?php
+          }
+          ?>
 
-				</div>
+        </div>
 
-			<?php } ?>
+      <?php } ?>
 
-		</main>
+    </main>
 
-
-	</div>
+  </div>
 </section>
 
 <?php wp_reset_postdata(); ?>
-
