@@ -24,16 +24,19 @@
   }
 }
 
-ul.icon {
+.icon {
   padding: 0;
   li {
     padding-bottom: 5px;
     .list-unstyled;
+    position: relative;
+    margin-left: 2rem;
     &:before {
       .glyphicon;
+      position: absolute;
       content:"\e013";
       color:@brand-primary;
-      margin-right: 1rem;
+      left: -2.5rem;
     }
   }
 }
