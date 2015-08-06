@@ -3,7 +3,7 @@
 
 // Main content area
 .main {
-	
+
 	.make-sm-column(@main-sm-columns);
 	.sidebar-primary & {
 		.make-sm-column(@main-sm-columns - @sidebar-sm-columns);
@@ -16,3 +16,25 @@
 		position:absolute;
 	}
 }
+
+
+.contact {
+  .wrap {
+    background: @brand-gray-lighter
+  }
+}
+
+ul.icon {
+  padding: 0;
+  li {
+    padding-bottom: 5px;
+    .list-unstyled;
+    &:before {
+      .glyphicon;
+      content:"\e013";
+      color:@brand-primary;
+      margin-right: 1rem;
+    }
+  }
+}
+

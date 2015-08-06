@@ -52,7 +52,7 @@ function roots_display_sidebar() {
       ['is_page_template', 'template-landing-page.php'],
       //['is_singular', 'portfolio'],
       ['is_archive', 'prestations'],
-      ['is_page', 'prestations']
+      ['is_page', array('prestations', 'richard-lieb-photographe')]
 
       ),
     /**
@@ -60,7 +60,7 @@ function roots_display_sidebar() {
      * Any of these page templates that return true won't show the sidebar
      */
     array(
-      'template-custom.php'
+      'template-custom.php',
       )
     );
 

@@ -1,8 +1,31 @@
+//== Forms
+//
+//##
+
+/*@input-bg:                       #fff;
+@input-bg-disabled:              @gray-lighter;
+
+@input-color:                    @gray;
+@input-border:                   #fff;
+@input-border-radius:            @border-radius-base;
+@input-border-focus:             @brand-primary;
+
+@input-color-placeholder:        @gray-light;
+
+@input-height-base:              (@line-height-computed + (@padding-base-vertical * 2) + 2);
+
+@legend-color:                   @gray-dark;
+@legend-border-color:            #e5e5e5;
+
+@input-group-addon-bg:           @gray-lighter;
+@input-group-addon-border-color: @input-border;*/
+
+
+
 @input-color:                    @text-color;
 @input-border:                   #d3d7d9;
 @input-border-radius:            0;
 @input-border-focus:             @brand-primary;
-
 
 input[placeholder], [placeholder], *[placeholder] {
     color: #cdcdcd !important;
@@ -17,11 +40,21 @@ input[placeholder], [placeholder], *[placeholder] {
 }
 
 ::-moz-placeholder {  /* Firefox 19+ */
-   color: #cdcdcd !important;  
+   color: #cdcdcd !important;
 }
 
-:-ms-input-placeholder {  
-   color: red;  
+:-ms-input-placeholder {
+   color: red;
+}
+
+label {
+  font-family: "Raleway";
+  font-size: 14px;
+  font-size: 1.4rem;
+  color: #8d8d8d;
+  font-weight: 400;
+  word-spacing: 2px;
+  line-height: 1.2em;
 }
 
 #extranet {
@@ -79,6 +112,29 @@ input[placeholder], [placeholder], *[placeholder] {
   .input-group.focus {
     .input-group-addon {
       border-color: @brand-primary;
+    }
+  }
+}
+
+/*
+* CONTACT
+*/
+
+.wpcf7 {
+  margin-right: 50px;
+  .form-control {
+    box-shadow: none;
+    padding: 10px;
+    height: 100%;
+    .font-size(2);
+    color: @brand-gray;
+    font-style: italic;
+    border-color: @light;
+    margin-bottom: 10px;
+    .transition(~"border .25s linear, color .25s linear, background-color .25s linear");
+    &:focus {
+      border-color: @brand-primary;
+      font-style: normal;
     }
   }
 }
