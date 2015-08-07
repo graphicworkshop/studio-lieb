@@ -50,6 +50,8 @@ var Roots = {
               if (!Modernizr.touch)
               {
 
+
+
                  $(".animated").appear();
                  _window.trigger("scroll");
                  $(document.body).on("appear", ".animated", function ()

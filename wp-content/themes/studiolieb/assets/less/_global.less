@@ -19,29 +19,55 @@ body:not(.home) {
       text-align: center;
     }
   }
+
+  h1 {
+    .font-size(3);
+  }
 }
 
 body.page-id-39 {
 
   .page-header {
-    border:none;
-    text-align:left;
-    margin:0;
+    border: none;
+    text-align: left;
+    margin: 0;
     padding: 0;
 
     #page-header-bg {
-      padding-top:105px;
-      background-image: url("../../assets/img/mariage3.jpg");
-      height: 400px;
-      top: 0;
-      opacity: 1;
-      overflow: visible;
-      transform: translate(0px, 0px);
+      height: 300px;
       display: block;
+      top: 0;
+      background-image: url("../../assets/img/mariage3.jpg");
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-size: 100%;
-      background-position:top;
+      background-position: top;
+      opacity: 1;
+      overflow: visible;
+      transform: translate(0px, 0px);
+
+      .title_holder {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding-bottom: 20px;
+        .container {
+          display: table;
+          height: 100%;
+          .row {
+            display: table-cell;
+            vertical-align: bottom;
+            width: 100%;
+            padding: 0;
+            position: relative;
+          }
+        }
+
+        h1, p {
+          color: @light;
+        }
+
+      }
     }
   }
 }
@@ -191,7 +217,7 @@ blockquote {
   margin-bottom: 5px;
   padding: 40px;
   border-left: none;
-  quotes:none;
+  quotes: none;
   background: @light url('../../assets/img/blockquotebg.png') no-repeat center center;
 
   p {
@@ -200,7 +226,7 @@ blockquote {
     line-height: 25px;
     color: #939393;
     text-align: center;
-    font-style:italic;
+    font-style: italic;
     margin-top: 2rem;
   }
 }
