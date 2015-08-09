@@ -1,7 +1,7 @@
 
 /* --------- INTRO -------- */
 
-.full-box { 
+.full-box {
 	padding: 35px 0px 35px 0px;
 	background-color: @brand-gray-lighter;
 	text-align: center;
@@ -13,7 +13,7 @@
 	}
 	&#call {
 		p {
-			.font-size(2.4);
+			.font-size(2.2);
 			font-weight:300;
 			padding:0 80px;
 			margin-top:0;
@@ -56,8 +56,8 @@
 			position: absolute;
 			bottom: 0px;
 			right:0;
-			
-			
+
+
 			&:before {
 				content: " ";
 				display: table;
@@ -103,7 +103,7 @@
 	}
 
 /*.row {
-		
+
 		display: table;
 
 
@@ -126,18 +126,19 @@
 /* --------- NEWS -------- */
 #news {
 	padding: 35px 0px 35px 0px;
+  text-align: center;
 	h3 {
 		.font-size(1.8);
 		color: @brand-primary;
 		line-height:2em;
-		
+
 		&:before {
 			.icons-title;
 			content:@icon-Calendrier;
-			
+
 		}
 	}
-	.thin-sep { 
+	.thin-sep {
 		background-color: @brand-primary;
 		margin-bottom:30px;
 	}
@@ -165,7 +166,7 @@
 			.font-size(2);
 			font-weight: 300;
 		}
-		
+
 	}
 
 }
@@ -176,7 +177,7 @@
 	img {
 		.img-responsive;
 		width: 100%;
-	} 
+	}
 }
 
 .owl-theme .owl-controls {
@@ -246,16 +247,16 @@
 
 
 
-.effects { 
-	//background-color: #282f35; 
-	.img { 
+.effects {
+	//background-color: #282f35;
+	.img {
 		position: relative;
-		img { 
+		img {
 			display: block;
 			margin: 0;
 			padding: 0;
 			max-width: 100%;
-			height: auto; 
+			height: auto;
 		}
 	}
 
@@ -263,17 +264,17 @@
 }
 
 #effect {
-	.overlay { 
+	.overlay {
 		position: absolute;
 		display: block;
 		top: 0;
 		bottom: 0;
-		left: 0; 
-		right: 0; 
-		background: rgba(0, 174, 164, 0.8); 
-		opacity: 0; 
-		transition: all 0.5s; 
-		a.expand { 
+		left: 0;
+		right: 0;
+		background: rgba(0, 174, 164, 0.8);
+		opacity: 0;
+		transition: all 0.5s;
+		a.expand {
 			position: absolute;
 			left: 0;
 			right: 0;
@@ -282,31 +283,31 @@
 			margin: 0 auto;
 			text-align: center;
 			color: #fff;
-			line-height: 50px; 
-			font-weight: 600; 
-			font-size: 14px; 
-			opacity: 0; 
-			text-transform: uppercase; 
-			letter-spacing: 3px; 
+			line-height: 50px;
+			font-weight: 600;
+			font-size: 14px;
+			opacity: 0;
+			text-transform: uppercase;
+			letter-spacing: 3px;
 			padding-top: 25px;
-			transition: all 0.5s; 
+			transition: all 0.5s;
 			display: block;
 		}
 	}
-	.img { 
+	.img {
 		overflow: hidden;
 		&.hover {
-			.overlay { 
+			.overlay {
 				opacity: 1;
-				a.expand { 
-					top: 50%; 
-					margin-top: -30px; 
-					opacity: 1; 
+				a.expand {
+					top: 50%;
+					margin-top: -30px;
+					opacity: 1;
 				}
 			}
 		}
 	}
-	a.close-overlay { 
+	a.close-overlay {
 		display: block;
 		position: absolute;
 		top: 0;
@@ -320,7 +321,7 @@
 		line-height: 45px;
 		text-align: center;
 		background-color: #000;
-		cursor: pointer; 
+		cursor: pointer;
 	}
 }
 
@@ -333,22 +334,24 @@
 
 #extranet {
 	padding:70px 0;
+  text-align: center;
 	h3 {
 		.font-size(1.8);
 		color: @brand-primary;
 		line-height:2em;
+
 		&:before {
 			.icons-title;
 			content:@icon-Lock;
-			
+
 		}
 	}
-	.thin-sep { 
+	.thin-sep {
 		background-color: @brand-primary;
 	}
 
 	p {
-		.font-size(2.4);
+		.font-size(2.2);
 		font-weight: 300;
 	}
 

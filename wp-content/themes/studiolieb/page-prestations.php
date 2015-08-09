@@ -1,7 +1,7 @@
 ﻿<?php while (have_posts()) :
   the_post(); ?>
 
-  <div class="container">
+
     <div class="row">
 
       <div class="col-sm-8 col-offset-sm-2 headline text-left">
@@ -18,13 +18,8 @@
       </div>
     </div>
 
-  </div>
-
   <section class="activities-list">
-
-    <div class="container">
-
-      <div class="row">
+     <div class="row">
         <div class="col-sm-4">
           <div class="iwt-wrapper clearfix">
             <div class="iwithtext">
@@ -33,7 +28,7 @@
               </div>
               <div class="iwt-text">
                 <h4><a href="<?php echo get_permalink(43); ?>" title="Photographie de produits et packshots">Photographie
-                    de produits et packshots</a></h4>
+                    de produits & packshots</a></h4>
 
                 <p>Prises de vues et retouches pour tous types de produits : joaillerie, verrerie, cosmétique, textile,
                   alimentaire...</p>
@@ -49,7 +44,7 @@
                 <i class="icon-Medical"></i>
               </div>
               <div class="iwt-text">
-                <h4><a href="<?php echo get_permalink(41); ?>" title="Photographie et film industriel">Photographie et
+                <h4><a href="<?php echo get_permalink(41); ?>" title="Photographie et film industriel">Photographie &
                     film industriel</a></h4>
 
                 <p>Portraits en entreprise, parc machines, séminaires, inaugurations...</p>
@@ -68,7 +63,7 @@
                 <h4><a href="<?php echo get_permalink(100); ?>" title="Photographie de mode et beauté">Photographie de
                     mode et beauté</a></h4>
 
-                <p>Réalisation de books professionnels, accompagnement et coaching personnalisé lors du shooting...</p>
+                <p>Réalisation de books professionnels, accompagnement & coaching personnalisé lors du shooting...</p>
               </div>
             </div>
           </div>
@@ -84,7 +79,7 @@
               </div>
               <div class="iwt-text">
                 <h4><a href="<?php echo get_permalink(102); ?>" title="Photographie
-                  sportive et instants d'actions">Photographies sportives et instants d'actions</a></h4>
+                  sportive et instants d'actions">Photographies sportives & instants d'actions</a></h4>
 
                 <p>Réalisation de reportages sportifs, couverture d’évènements sportifs...</p>
               </div>
@@ -127,9 +122,11 @@
 
       </div>
 
-    </div>
+
 
   </section>
+
+  <?php the_content(); ?>
 
   <section class="goto-tarifs">
 

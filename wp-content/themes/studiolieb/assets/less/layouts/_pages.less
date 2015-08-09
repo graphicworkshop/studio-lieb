@@ -1,17 +1,3 @@
-/*p{
-      text-align: left;
-      margin-top: 5px;
-  }
-  label{
-      margin-top: 10px;
-  }
-  textarea.form-control {
-      height: 200px;
-  }
-  .btn{
-      margin: 50px auto 0 auto;
-      display: block;
-  }*/
 
 .text-left * {
   text-align: left !important;
@@ -24,14 +10,19 @@
     .font-size(5);
     font-weight: 300;
     text-transform: none;
+    .text-left;
   }
   p {
     .font-size(2);
     font-weight: 300;
     margin-top: 0;
   }
+  strong {
+    font-weight: 500;
+  }
 }
 
+/*
 .activities-list {
   [class^="icon-"], [class*=" icon-"] {
     .font-size(4);
@@ -83,9 +74,59 @@
     p {
       margin-top: 5px;
     }
-    h4 {
-      /*text-transform:uppercase;*/
+
+  }
+}
+*/
+
+.activities-list {
+  [class^="icon-"], [class*=" icon-"] {
+    .font-size(4.5);
+    margin: 15px 0;
+    color: #DDD;
+    display: block;
+    text-align: center;
+    transition: all ease 0.5s;
+  }
+
+  margin-top: 50px;
+
+  .iwt-wrapper {
+    position: relative;
+    background: @light;
+    padding: 15px;
+    min-height: 220px;
+    margin-bottom: 20px;
+    border:1px solid transparent;
+    transition: all 0.5s;
+    &:hover {
+      border:1px solid @brand-primary;
+      transition: all ease 0.5s;
+      [class^="icon-"], [class*=" icon-"], a {
+        color: @brand-primary;
+        transition: all ease 0.5s;
+      }
     }
+  }
+
+  .iwt-text {
+    a {
+      color: @text-color;
+      transition: all 0.5s;
+      &:hover {
+        color: @brand-primary;
+        transition: all 0.5s;
+        text-decoration: none;
+      }
+    }
+
+    * {
+      text-align: center;
+    }
+    p {
+      margin-top: 5px;
+    }
+
   }
 }
 
@@ -126,7 +167,14 @@
     .make-sm-column(4);
     padding: 40px 20px 10px;
     position: relative;
-
+    border-top: 3px solid transparent;
+    margin-top: -1px;
+    transition: all ease 350ms;
+    &:hover {
+      border-top: 3px solid @brand-primary;
+      background: rgba(255, 255, 255, 0.6);
+      transition: all ease 350ms;
+    }
     .h2 {
       margin-top: 5px;
       display: block;
@@ -137,9 +185,9 @@
 
   .plan[data-plan="or"] {
     order: 2;
-    border-top: 3px solid @brand-primary;
+    border-color: @brand-primary;
     background: @light;
-    margin-top: -1px
+
   }
 
   .plan[data-plan="argent"] {
@@ -147,14 +195,22 @@
   }
 
   .plan[data-plan="bronze"] {
-    order: 3
+    order: 3;
+    small {
+      display: block;
+      line-height: 0.5;
+    }
   }
 
   .price {
     color: @brand-primary;
     font-weight: 300;
     font-size: 40px;
-    margin-bottom: 0px
+    margin-bottom: 0;
+    small {
+      font-size: 60%;
+      line-height: 1;
+    }
   }
 
   .features {
@@ -197,18 +253,32 @@
 
   ul.special-features {
     .icon;
+    margin-bottom: 25px;
     li {
       &:before {
         content: "\2b";
+        position: relative;
+        left: 0;
+        margin-right: 1rem;
+        margin-left: -1rem;
       }
     }
   }
 
 }
 
+#portait-pricing-container {
+  .plan {
+    .make-sm-column(3);
+  }
+}
+
 .pricing-info {
   * {
     text-align: left;
+  }
+  h2 {
+    margin-top: 0;
   }
 }
 
@@ -242,4 +312,24 @@
     }
   }
 
+}
+
+.panel-title a {
+  color:@brand-primary;
+
+  &:after {
+    color:#DDD;
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+    float: right;
+  }
+}
+.panel-title a.accordion-opened:after {
+  content: "\e080";
+}
+
+.panel-body {
+  p:first-child {
+    margin-top: 0;
+  }
 }

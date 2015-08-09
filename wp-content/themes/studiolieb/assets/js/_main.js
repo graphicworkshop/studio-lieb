@@ -50,6 +50,19 @@ var Roots = {
               if (!Modernizr.touch)
               {
 
+                function toggleChevron(e) {
+                  $(e.target)
+                    .prev('.panel-heading')
+                    .find("a")
+                    .toggleClass('accordion-opened');
+                }
+
+                $('#accordion').on('hidden.bs.collapse', toggleChevron);
+                $('#accordion').on('shown.bs.collapse', toggleChevron);
+
+                $('.panel-group').on('show.bs.collapse', function () {
+                  $('#accordion .in').collapse('hide');
+                });
 
 
                  $(".animated").appear();

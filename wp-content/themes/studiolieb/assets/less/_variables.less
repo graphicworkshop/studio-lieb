@@ -1,41 +1,40 @@
 @import url(http://fonts.googleapis.com/css?family=Lato:300,400,500,600,700);
 @import url(http://fonts.googleapis.com/css?family=Droid+Serif:400italic,700italic);
 
-
 // Grid settings
 // -------------------------
 
-@main-sm-columns:       @grid-columns;
-@sidebar-sm-columns:    3;
+@main-sm-columns: @grid-columns;
+@sidebar-sm-columns: 3;
 
 // Brand colors
 // -------------------------
 
-
 @dark: #000;
 @light: #fff;
 
-@brand-primary:       #00aea4;
-@brand-gray:          #353738;
-@brand-gray-light:    #848789;
-@brand-gray-lighter:  #f1f1f1;
+@brand-primary: #00aea4;
+@brand-gray: #353738;
+@brand-gray-light: #848789;
+@brand-gray-lighter: #f1f1f1;
 
-@text-color:            #8d8d8d;
+@text-color: #8d8d8d;
 
-@btn-default-color:              @light;
-@btn-default-bg:                 @light;
-@btn-default-border:             @light;
+@btn-default-color: @light;
+@btn-default-bg: @light;
+@btn-default-border: @light;
 
-@btn-primary-color:              #fff;
-@btn-primary-bg:                 @brand-primary;
-@btn-primary-border:             @brand-primary;
+@btn-primary-color: #fff;
+@btn-primary-bg: @brand-primary;
+@btn-primary-border: @brand-primary;
+
+@btn-secondary-bg: #ccc;
+@btn-secondary-border: #ccc;
 
 @btn-default-color: @light;
 
-
 // Font size mixin
 // -------------------------
-
 
 .font-size(@sizeValue) {
   @remValue: @sizeValue;
@@ -51,14 +50,31 @@
   letter-spacing: ~"@{remValue}rem";
 }
 
-
 //== Components
 //
 
-@headings-font-family:  'Lato', sans-serif;
-@font-family-sans-serif:  "Lato", Helvetica, Arial, sans-serif;
+@headings-font-family: 'Raleway', sans-serif;
+@font-family-sans-serif: "Raleway", Helvetica, Arial, sans-serif;
 
-@border-radius-base:        1px;
-@border-radius-large:       6px;
-@border-radius-small:       3px;
+@border-radius-base: 1px;
+@border-radius-large: 6px;
+@border-radius-small: 3px;
 
+.btn-secondary {
+  .btn-primary;
+  background-color: @btn-secondary-bg;
+  border-color: @btn-secondary-border;
+}
+
+.btn-secondary {
+  .btn-primary;
+  background-color: @btn-secondary-bg;
+  border-color: @btn-secondary-border;
+}
+
+.btn {
+  transition: background linear 350ms;
+  &:hover {
+    transition: background linear 350ms;
+  }
+}

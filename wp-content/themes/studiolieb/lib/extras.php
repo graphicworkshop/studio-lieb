@@ -132,7 +132,7 @@ function prestations_taxonomy()
 // Hook into the 'init' action
 add_action('init', 'prestations_taxonomy', 0);
 
-add_image_size('portfolio_thumb', 480, 480, true);
+add_image_size('portfolio', 480, 480, true);
 
 
 function page_excerpt()
