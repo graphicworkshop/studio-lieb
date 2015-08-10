@@ -145,13 +145,21 @@ var Roots = {
       single_portfolio: {
           init: function () {
 
-              $('.grid').masonry({
-                // set itemSelector so .grid-sizer is not used in layout
-                itemSelector: '.grid-item',
-                // use element for option
-                columnWidth: '.grid-sizer',
-                percentPosition: true
+            var $container = $('.grid');
+
+            $container.imagesLoaded(function(){
+              $container.masonry({
+                itemSelector : '.grid-item',
+                animationEngine: 'best-available',
+                percentPosition: true,
+                sortBy : '*',
+                masonry: {
+                  columnWidth: '.grid-sizer'
+                }
               });
+            });
+
+
             // translate magnific popup
               $.extend(true, $.magnificPopup.defaults, {
                 tClose: 'Fermer (Echap)', // Alt text on close button
@@ -196,21 +204,6 @@ var Roots = {
         },
 
 
-        // Portfolio
-       /* archive_portfolio    : {
-          init: function ()
-          {
-            var $grid = $('.grid').isotope({
-              // main isotope options
-              itemSelector: '.grid-item',
-              // options for masonry layout mode
-              masonry: {
-                columnWidth: '.grid-sizer',
-              }
-            });
-          }
-        },*/
-
         // Home page
         home    : {
             init: function ()
@@ -241,19 +234,20 @@ var Roots = {
                 /*
                  * ISOTOPE
                  */
-
-
                 var $container = $('#list-isotope'); //The ID for the list with all the blog posts
 
-                $container.isotope({ //Isotope options, 'item' matches the class in the PHP
-                    itemSelector: '.grid-item',
+                $container.imagesLoaded(function(){
+                  $container.isotope({
+                    itemSelector : '.grid-item',
+                    animationEngine: 'best-available',
                     percentPosition: true,
                     sortBy : '*',
                     masonry: {
-                      // use outer width of grid-sizer for columnWidth
                       columnWidth: '.grid-sizer'
                     }
+                  });
                 });
+
 
                 //Add the class selected to the item that is clicked, and remove from the others
                 var $optionSets = $('#filters'),

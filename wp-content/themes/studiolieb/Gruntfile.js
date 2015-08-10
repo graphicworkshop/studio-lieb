@@ -18,11 +18,10 @@ module.exports = function(grunt) {
     'assets/vendor/bootstrap/js/scrollspy.js',
     'assets/vendor/bootstrap/js/tab.js',
     'assets/vendor/bootstrap/js/affix.js',
-    //'assets/vendor/lazarofl.owlcarousel/owl-carousel/owl.carousel.js',
     'assets/vendor/OwlCarousel/owl-carousel/owl.carousel.js',
     'assets/vendor/magnific-popup/dist/jquery.magnific-popup.js',
-    //'assets/vendor/fitvids/jquery.fitvids.js',
     'assets/vendor/jquery.appear.js/jquery.appear.js',
+    'assets/vendor/imagesloaded/imagesloaded.js',
     'assets/js/plugins/*.js',
     'assets/js/_*.js'
   ];

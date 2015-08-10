@@ -15,7 +15,8 @@
     "respond": "1.4.2",
     "jquery.appear.js": "~0.3.6",
     "magnific-popup": "~1.0.0",
-    "OwlCarousel": "~1.3.2"
+    "OwlCarousel": "~1.3.2",
+    "imagesloaded": "~3.1.8"
   },
   "resolutions": {
     "modernizr": "~2.8.3",
