@@ -97,10 +97,10 @@
     padding: 15px;
     min-height: 220px;
     margin-bottom: 20px;
-    border:1px solid transparent;
+    border: 1px solid transparent;
     transition: all 0.5s;
     &:hover {
-      border:1px solid @brand-primary;
+      border: 1px solid @brand-primary;
       transition: all ease 0.5s;
       [class^="icon-"], [class*=" icon-"], a {
         color: @brand-primary;
@@ -315,15 +315,16 @@
 }
 
 .panel-title a {
-  color:@brand-primary;
+  color: @brand-primary;
 
   &:after {
-    color:#DDD;
+    color: #DDD;
     font-family: 'Glyphicons Halflings';
     content: "\e114";
     float: right;
   }
 }
+
 .panel-title a.accordion-opened:after {
   content: "\e080";
 }
@@ -333,3 +334,65 @@
     margin-top: 0;
   }
 }
+
+
+  #goto-portfolio {
+    position: relative;
+    background: rgba(53, 55, 56, 0.9);
+    min-height: 150px;
+    transition: all 300ms ease-out;
+    margin-left: 30px;
+    & > img {
+      opacity: 0.4;
+      transition: all 300ms ease-out;
+    }
+    &:hover {
+      background: rgba(53, 55, 56, 1);
+      transition: all 300ms ease-out;
+      & > img {
+        opacity: 0;
+        transition: all 300ms ease-out;
+      }
+    }
+    .content-overlay {
+      position: absolute;
+      display: block;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px;
+      h2 {
+        .font-size(2);
+        margin: 0;
+        color: @light;
+        text-transform: uppercase;
+        text-align: left;
+      }
+      .description {
+        color: @brand-primary;
+        .font-size(1.5);
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+      .access {
+        color: @light;
+        font-weight: 400;
+        .font-size(1.4);
+        width: 150px;
+        display: inline-block;
+        position: absolute;
+        left: 10px;
+        bottom: 16px;
+        line-height: 16px;
+      }
+      i {
+        position: absolute;
+        .font-size(4);
+        right: 10px;
+        bottom: 10px;
+        color: @light;
+      }
+    }
+  }
+

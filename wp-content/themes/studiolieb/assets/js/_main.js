@@ -101,9 +101,6 @@ var Roots = {
                });
               }
 
-
-
-
               /*  ==================================================
                # Overlay
                /* ================================================== */
@@ -141,7 +138,6 @@ var Roots = {
 
       },
 
-
       single_portfolio: {
           init: function () {
 
@@ -158,7 +154,6 @@ var Roots = {
                 }
               });
             });
-
 
             // translate magnific popup
               $.extend(true, $.magnificPopup.defaults, {
@@ -192,14 +187,7 @@ var Roots = {
               }
             });
 
-            $(".effects .img").click(function(e) {
-                //e.preventDefault();
-                //e.stopPropagation();
-                //alert('click');
-                $(this).children(".overlay a").click();
-                //$(this).(".overlay > a").trigger( "click" );
-                //return false; // Prevent event propagation and infinite loops
-            });
+
           }
         },
 
@@ -247,7 +235,6 @@ var Roots = {
                     }
                   });
                 });
-
 
                 //Add the class selected to the item that is clicked, and remove from the others
                 var $optionSets = $('#filters'),

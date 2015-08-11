@@ -245,8 +245,6 @@
 	}
 }
 
-
-
 .effects {
 	//background-color: #282f35;
 	.img {
@@ -259,8 +257,6 @@
 			height: auto;
 		}
 	}
-
-
 }
 
 #effect {
@@ -274,7 +270,7 @@
 		background: rgba(0, 174, 164, 0.8);
 		opacity: 0;
 		transition: all 0.5s;
-		a.expand {
+		.expand {
 			position: absolute;
 			left: 0;
 			right: 0;
@@ -299,7 +295,7 @@
 		&.hover {
 			.overlay {
 				opacity: 1;
-				a.expand {
+				.expand {
 					top: 50%;
 					margin-top: -30px;
 					opacity: 1;
@@ -339,20 +335,16 @@
 		.font-size(1.8);
 		color: @brand-primary;
 		line-height:2em;
-
 		&:before {
 			.icons-title;
 			content:@icon-Lock;
-
 		}
 	}
 	.thin-sep {
 		background-color: @brand-primary;
 	}
-
 	p {
 		.font-size(2.2);
 		font-weight: 300;
 	}
-
 }
