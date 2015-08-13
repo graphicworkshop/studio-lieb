@@ -32,7 +32,7 @@
         <div class="thin-sep"></div>
       </div>
       <div class="small-featured-img visible-lg">
-        <img src="<?php bloginfo('template_url'); ?>/assets/img/mariage_01_small.jpg" class="img-responsive">
+        <img src="<?php bloginfo('template_url'); ?>/assets/img/photo_bebe.jpg" class="img-responsive">
       </div>
     </div>
     <div class="col-md-7 col-lg-8 section-featured-img">
