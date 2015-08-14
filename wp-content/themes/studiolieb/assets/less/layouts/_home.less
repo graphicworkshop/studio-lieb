@@ -84,6 +84,7 @@
 	.section-featured-img {
 		background:url("../img/portrait_couple_mariage.jpg") no-repeat;
 		background-size:cover;
+    background-position: top center;
 	}
 
   .section-featured-img:nth-child(2) {
@@ -255,6 +256,7 @@
 	//background-color: #282f35;
 	.img {
 		position: relative;
+    max-height: 295px;
 		img {
 			display: block;
 			margin: 0;
@@ -263,6 +265,9 @@
 			height: auto;
 		}
 	}
+  .img.full-height {
+    max-height: 590px;
+  }
 }
 
 #effect {
