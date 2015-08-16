@@ -1,5 +1,5 @@
 <?php get_template_part('templates/head'); ?>
-<body <?php body_class(); ?> data-spy="scroll" data-target=".navbar-fixed-top">
+<body <?php body_class(); ?>  id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
 
   <!--[if lt IE 8]>
     <div class="alert alert-warning">
@@ -13,11 +13,11 @@
   ?>
 
   <div role="document">
-   
+
       <main role="main">
         <?php include roots_template_path(); ?>
-      </main><!-- /.main --> 
-    
+      </main><!-- /.main -->
+
   </div><!-- /.wrap -->
 
   <?php get_template_part('templates/footer'); ?>

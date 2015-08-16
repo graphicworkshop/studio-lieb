@@ -67,44 +67,46 @@ var Roots = {
 
                  $(".animated").appear();
                  _window.trigger("scroll");
-                 $(document.body).on("appear", ".animated", function ()
-                 {
 
-                     var animationType = $(this).attr("data-animation");
-                     var animationDelay = $(this).attr("data-animation-delay");
-                     $(this).each(function ()
-                     {
-                         var $this = $(this);
-                         // add the custom animation delay to the element
-                         $this.css({
-                             "-webkit-animation-delay": animationDelay,
-                             "-moz-animation-delay"   : animationDelay,
-                             "animation-delay"        : animationDelay
-                         });
-                         // add the animation to the element
-                         $this.addClass(animationType);
-                         if ($this.hasClass("no-opacity"))
-                         {
-                             $this.one("webkitAnimationEnd oanimationend msAnimationEnd animationend", function ()
-                             {
-                                 $this.removeClass("no-opacity");
-                             });
-                         }
-                     });
-                 });
+                $(document.body).on("appear", ".animated", function ()
+                {
+
+                  var animationType = $(this).attr("data-animation");
+                  var animationDelay = $(this).attr("data-animation-delay");
+                  $(this).each(function ()
+                  {
+                    var $this = $(this);
+                    // add the custom animation delay to the element
+                    $this.css({
+                      "-webkit-animation-delay": animationDelay,
+                      "-moz-animation-delay"   : animationDelay,
+                      "animation-delay"        : animationDelay
+                    });
+                    // add the animation to the element
+                    $this.addClass(animationType);
+                    if ($this.hasClass("no-opacity"))
+                    {
+                      $this.one("webkitAnimationEnd oanimationend msAnimationEnd animationend", function ()
+                      {
+                        $this.removeClass("no-opacity");
+                      });
+                    }
+                  });
+                });
+
               }
-              else
-              {
-               $(".animated").each(function ()
-               {
-                   $(this).removeClass("animated no-opacity");
-               });
-              }
+
 
               /*  ==================================================
                # Overlay
                /* ================================================== */
                if (Modernizr.touch) {
+
+                 $(".animated").each(function ()
+                 {
+                   $(this).removeClass("animated no-opacity");
+                 });
+
                   // show the close overlay button
                   $(".close-overlay").removeClass("hidden");
                   // handle the adding of hover class when clicked

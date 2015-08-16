@@ -39,19 +39,30 @@
         $class = '';
 
         foreach ($prestations as $prestation) {
-          $class = $liste_presta . ' ' . $prestation->slug;
+          $class = $prestation->slug;
+          $term_name = $prestation->name;
         }
+
 
       }
 
       ?>
 
-      <div class="img grid-item item <?php echo $class ?> <?php echo $orientation ?>"
+      <div class="img grid-item item-type-move item <?php echo $class ?> <?php echo $orientation ?>"
            data-category="<?php echo $class ?>">
 
         <a href="<?php echo get_the_permalink(); ?>">
           <?php the_post_thumbnail('large', array('class' => 'img-responsive')); ?>
-          <div class="overlay"><span class="expand"><?php echo get_the_title(); ?></span></div>
+          <div class="overlay">
+            <!--<span class="expand"><?php echo get_the_title(); ?></span>-->
+            <div class="item-info">
+              <div class="headline">
+                <?php echo get_the_title(); ?>
+                <div class="line"></div>
+              </div>
+              <div class="date"><?php echo $term_name; ?></div>
+            </div>
+          </div>
         </a>
 
         <?php
@@ -63,3 +74,4 @@
     <?php endwhile; ?>
   </div>
 </div>
+

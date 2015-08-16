@@ -3,7 +3,7 @@
 		<div id="effect" class="effects clearfix">
 			<div class="col-md-4">
 				<div class="row">
-					<div class="col-xs-6 nopadding">
+					<div class="col-xs-6 nopadding animated no-opacity" data-animation="fadeIn" data-animation-delay="0.3s">
 						<div class="img">
 							<img src="<?php bloginfo('template_url'); ?>/assets/img/prestation_photo_packshot.jpg" alt="Objets">
 							<div class="overlay">
@@ -12,7 +12,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-xs-6 nopadding">
+					<div class="col-xs-6 nopadding animated no-opacity" data-animation="fadeIn" data-animation-delay="0.6s">
 						<div class="img">
 							<img src="<?php bloginfo('template_url'); ?>/assets/img/prestation_photo_famille.jpg" alt="Portrait">
 							<div class="overlay">
@@ -25,7 +25,7 @@
 
 				<div class="row">
 
-					<div class="col-xs-12 nopadding">
+					<div class="col-xs-12 nopadding animated no-opacity" data-animation="fadeIn" data-animation-delay="0.9s">
 						<div class="img">
 							<img src="<?php bloginfo('template_url'); ?>/assets/img/prestation_photo_portrait_boudoir.jpg" alt="Boudoir">
 							<div class="overlay">
@@ -37,7 +37,7 @@
 
 				</div>
 			</div>
-			<div class="col-md-4 nopadding">
+			<div class="col-md-4 nopadding animated no-opacity" data-animation="fadeIn" data-animation-delay="1.2s">
 
 				<div class="img full-height">
 					<img src="<?php bloginfo('template_url'); ?>/assets/img/prestation_photo_corporate.jpg" alt="Portrait">
@@ -50,7 +50,7 @@
 			</div>
 			<div class="col-md-4">
 				<div class="row no-gutter">
-					<div class="col-xs-12">
+					<div class="col-xs-12 animated no-opacity" data-animation="fadeIn" data-animation-delay="1.5s">
 						<div class="img">
 							<img src="<?php bloginfo('template_url'); ?>/assets/img/prestation_photo_mode.jpg" alt="Mode">
 							<div class="overlay">
@@ -61,7 +61,7 @@
 					</div>
 				</div>
 				<div class="row no-gutter">
-					<div class="col-xs-12">
+					<div class="col-xs-12 animated no-opacity" data-animation="fadeIn" data-animation-delay="1.8s">
 						<div class="img">
 							<img src="<?php bloginfo('template_url'); ?>/assets/img/prestation_photo_mariage.jpg" alt="Mariage">
 							<div class="overlay">

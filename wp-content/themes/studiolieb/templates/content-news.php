@@ -10,11 +10,11 @@ $news_query = new WP_Query($args);
 
 ?>
 
-<section class="container" id="news">
+<section class="container"  id="news">
 
-  <div class="content row">
+  <div class="content row animated no-opacity" data-animation="fadeInDown" data-animation-delay="0.8s">
 
-    <div class="col-md-12 animated" data-animation="fadeInDown" data-animation-delay="0.8s">
+    <div class="col-md-12">
       <h3>Les dernières actualités</h3>
 
       <div class="thin-sep"></div>

@@ -1,6 +1,6 @@
 <section class="container" id="extranet">
   <div class="row no-gutter">
-    <div class="col-md-12 animated" data-animation="fadeInDown" data-animation-delay="0.8s">
+    <div class="col-md-12 animated no-opacity" data-animation="fadeInDown" data-animation-delay="0.8s">
       <h3>Espace clients</h3>
 
       <div class="thin-sep"></div>
