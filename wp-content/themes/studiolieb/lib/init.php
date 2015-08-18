@@ -65,5 +65,14 @@ function roots_widgets_init() {
     'before_title'  => '<h2>',
     'after_title'   => '</h2>',
   ));
+
+  register_sidebar(array(
+    'name'          => __('Mentions Légales', 'roots'),
+    'id'            => 'sidebar-legal',
+    'before_widget' => '<section class="widget %1$s %2$s">',
+    'after_widget'  => '</section>',
+    'before_title'  => '<h2>',
+    'after_title'   => '</h2>',
+  ));
 }
 add_action('widgets_init', 'roots_widgets_init');
