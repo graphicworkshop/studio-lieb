@@ -97,10 +97,10 @@
               <i class="icon-Coupe"></i>
             </div>
             <div class="iwt-text">
-              <h4><a href="<?php echo get_permalink(102); ?>" title="Photographie
-                  sportive et instants d'actions">Photographies sportives & instants d'actions</a></h4>
+              <h4><a href="<?php echo get_permalink(341); ?>" title="Photographie
+                  sportive et instants d'actions">Prises de vues et images aériennes</a></h4>
 
-              <p>Réalisation de reportages sportifs, couverture d’évènements sportifs...</p>
+              <p>Services de photos aériennes et de vidéos aériennes par drones.</p>
             </div>
           </div>
         </div>

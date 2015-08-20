@@ -1507,6 +1507,7 @@ function upgrade_430() {
 
 	// Shared terms are split in a separate process.
 	if ( $wp_current_db_version < 32814 ) {
+		update_option( 'finished_splitting_shared_terms', 0 );
 		wp_schedule_single_event( time() + ( 1 * MINUTE_IN_SECONDS ), 'wp_split_shared_term_batch' );
 	}
 
@@ -1520,7 +1521,7 @@ function upgrade_430() {
 				$tables = array_diff_assoc( $tables, $global_tables );
 			}
 		}
-	
+
 		foreach ( $tables as $table ) {
 			maybe_convert_table_to_utf8mb4( $table );
 		}
@@ -2621,7 +2622,7 @@ endif;
 
 /**
  * Determine if global tables should be upgraded.
- * 
+ *
  * This function performs a series of checks to ensure the environment allows
  * for the safe upgrading of global WordPress database tables. It is necessary
  * because global tables will commonly grow to millions of rows on large
