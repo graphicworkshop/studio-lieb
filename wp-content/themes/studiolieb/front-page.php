@@ -13,7 +13,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-4 col-md-offset-4">
-					<a class="btn btn-primary btn-inverse center-block" href="<?php echo get_permalink( 97 ); ?>" role="button">Découvrez le studio</a>
+					<a class="btn btn-primary btn-inverse center-block" href="<?php echo get_permalink( 4 ); ?>" role="button">Découvrez le studio</a>
 				</div>
 			</div>
 		</div>

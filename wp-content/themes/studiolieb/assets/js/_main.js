@@ -21,6 +21,9 @@
 var Roots = {
         // All pages
         common  : {
+
+
+
             init: function ()
             {
 
@@ -43,6 +46,8 @@ var Roots = {
                     navbar_fixed_top.removeClass("top-nav-collapse");
                   }
                 });
+
+
 
               /*  ==================================================
               # Initialize all the reloadable JavaScript
@@ -226,6 +231,21 @@ var Roots = {
                  */
                 var $container = $('#list-isotope'); //The ID for the list with all the blog posts
 
+                /*function getParameterByName(name) {
+                  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                  var regexS = "[\\?&]" + name + "=([^&#]*)";
+                  var regex = new RegExp(regexS);
+                  var results = regex.exec(window.location.search);
+                  if(results == null)
+                    return "";
+                  else
+                    return decodeURIComponent(results[1].replace(/\+/g, " "));
+                };
+
+                var filterFromQuerystring = getParameterByName('filter');*/
+
+                var hash = window.location.hash.substring(1);
+
                 $container.imagesLoaded(function(){
                   $container.isotope({
                     itemSelector : '.grid-item',
@@ -258,6 +278,13 @@ var Roots = {
 
                     return false;
                 });
+
+                if (hash !== null) {
+
+                    $('button[data-filter=".' + hash  + '"]').click();
+
+                }
+
             }
         },
         // About us page, note the change from about-us to about_us.

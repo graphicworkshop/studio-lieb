@@ -189,11 +189,19 @@ input:-webkit-autofill {
   color: @brand-primary !important;
   background: none !important;
   border-color: @brand-primary;
+  &:hover {
+    color: @light !important;
+    background: @brand-primary !important;
+  }
 }
 
 .btn-default {
   background: none !important;
   color: @light;
+  &:hover {
+    color: @text-color !important;
+    background: @light !important;
+  }
 }
 
 .btn {
@@ -202,6 +210,11 @@ input:-webkit-autofill {
   text-transform: uppercase;
   .font-size(1.4);
   .letter-spacing(0.2);
+}
+
+.btn-xs {
+  .font-size(1.2);
+  padding: 15px 10px;
 }
 
 .content-info {

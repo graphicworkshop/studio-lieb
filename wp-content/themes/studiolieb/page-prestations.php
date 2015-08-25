@@ -20,7 +20,7 @@
     <div class="col-sm-3 col-sm-offset-1">
 
 
-        <a href="<?php get_permalink(2); ?>">
+        <a href="<?php echo get_permalink(2); ?>">
           <div id="goto-portfolio">
             <img src="<?php bloginfo('template_url'); ?>/assets/img/36102619_small.jpg" class="img-responsive">
 
@@ -94,7 +94,7 @@
         <div class="iwt-wrapper clearfix">
           <div class="iwithtext">
             <div class="iwt-icon">
-              <i class="icon-Coupe"></i>
+              <i class="icon-Video"></i>
             </div>
             <div class="iwt-text">
               <h4><a href="<?php echo get_permalink(341); ?>" title="Photographie
